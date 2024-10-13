@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.test.annotation.Rollback
 import java.util.*
 
 @DataJpaTest
@@ -27,7 +26,6 @@ class BookRepositoryTest {
     }
 
     @Test
-    @Rollback(false)
     fun saveBook_ShouldSaveAndReturnBook() {
         val savedBook = bookRepository.save(book)
         assertNotNull(savedBook.id)
