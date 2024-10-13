@@ -1,5 +1,7 @@
-package com.example.homebookshelfapi
+package com.example.homebookshelfapi.Integration
 
+import com.example.homebookshelfapi.models.Book
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.BeforeEach
@@ -17,24 +19,22 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @AutoConfigureMockMvc
 @Transactional
 class BookControllerIntegrationTest {
-
     // TODO: Switch to using Test Containers?
 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    private lateinit var book: String
+    private lateinit var bookJson: String
 
     @BeforeEach
     fun setup() {
-        book = """
-            {
-                "isbn": "1234567890",
-                "title": "The Hobbit",
-                "author": "J.R.R. Tolkien",
-                "publishedYear": 1937
-            }
-        """
+        val book = Book(
+            isbn = "1234567890",
+            title = "The Hobbit",
+            author = "J.R.R. Tolkien",
+            publishedYear = 1937
+        )
+        bookJson = ObjectMapper().writeValueAsString(book)
     }
 
     @Test
@@ -42,7 +42,7 @@ class BookControllerIntegrationTest {
         mockMvc.perform(
             post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(book)
+                .content(bookJson)
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.title").value("The Hobbit"))
@@ -60,7 +60,7 @@ class BookControllerIntegrationTest {
         val result = mockMvc.perform(
             post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(book)
+                .content(bookJson)
         )
             .andExpect(status().isCreated)
             .andReturn()
@@ -77,7 +77,7 @@ class BookControllerIntegrationTest {
         val result = mockMvc.perform(
             post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(book)
+                .content(bookJson)
         )
             .andExpect(status().isCreated)
             .andReturn()
@@ -94,18 +94,24 @@ class BookControllerIntegrationTest {
         val result = mockMvc.perform(
             post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(book)
+                .content(bookJson)
         )
             .andExpect(status().isCreated)
             .andReturn()
 
         val bookId = JsonPath.read<String>(result.response.contentAsString, "$.id")
-        val updatedBook = book.replace("The Hobbit", "The Hobbit Updated")
+        val updatedBook = Book(
+            isbn = "1234567890",
+            title = "The Hobbit Updated",
+            author = "J.R.R. Tolkien",
+            publishedYear = 1937
+        )
+        val updatedBookJson = ObjectMapper().writeValueAsString(updatedBook)
 
         mockMvc.perform(
             put("/api/books/$bookId")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(updatedBook)
+                .content(updatedBookJson)
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.title").value("The Hobbit Updated"))
@@ -116,7 +122,7 @@ class BookControllerIntegrationTest {
         val result = mockMvc.perform(
             post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(book)
+                .content(bookJson)
         )
             .andExpect(status().isCreated)
             .andReturn()
