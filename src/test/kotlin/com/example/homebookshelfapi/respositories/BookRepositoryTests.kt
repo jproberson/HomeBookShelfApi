@@ -7,13 +7,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import java.util.*
+import java.time.LocalDate
 
 @DataJpaTest
 @Transactional
 class BookRepositoryTest {
-
-    // TODO: Switch to using Test Containers?
 
     @Autowired
     private lateinit var bookRepository: BookRepository
@@ -22,7 +20,16 @@ class BookRepositoryTest {
 
     @BeforeEach
     fun setup() {
-        book = Book(isbn = UUID.randomUUID().toString(), title = "Sample Book", author = "Author Name", publishedYear = 2022)
+        book = Book(
+            isbn = "1234567890",
+            title = "Sample Book",
+            authors = "Author Name",
+            description = "Sample description",
+            categories = "Sample category",
+            publishedDate = LocalDate.of(2022, 1, 1),
+            pageCount = 300,
+            thumbnail = "some_thumbnail_url"
+        )
     }
 
     @Test

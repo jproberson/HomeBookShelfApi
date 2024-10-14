@@ -22,19 +22,16 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-//    runtimeOnly("com.h2database:h2")
     testImplementation("com.h2database:h2")
-    // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
     implementation("org.flywaydb:flyway-core:10.19.0")
-// https://mvnrepository.com/artifact/org.flywaydb/flyway-database-postgresql
     runtimeOnly("org.flywaydb:flyway-database-postgresql:10.19.0")
-
 }
 
 kotlin {

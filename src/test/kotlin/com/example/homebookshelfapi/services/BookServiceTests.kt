@@ -1,14 +1,16 @@
 package com.example.homebookshelfapi.services
 
+import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.models.Book
 import com.example.homebookshelfapi.repositories.BookRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
+import java.time.LocalDate
 import java.util.*
 
 class BookServiceTest {
@@ -16,18 +18,30 @@ class BookServiceTest {
     @Mock
     private lateinit var bookRepository: BookRepository
 
+    @Mock
+    private lateinit var googleApiService: GoogleApiService
+
     @InjectMocks
     private lateinit var bookService: BookService
 
     private lateinit var book: Book
-
     private lateinit var id: UUID
 
     @BeforeEach
     fun setup() {
-        val id = UUID.randomUUID()
+        id = UUID.randomUUID()
         MockitoAnnotations.openMocks(this)
-        book = Book(id = id, isbn = "isbn", title = "Sample Book", author = "Author Name", publishedYear = 2022)
+        book = Book(
+            id = id,
+            isbn = "isbn",
+            title = "Sample Book",
+            authors = "Author Name",
+            description = "Sample description",
+            categories = "Fiction",
+            publishedDate = LocalDate.of(2022, 1, 1),
+            pageCount = 350,
+            thumbnail = "some_thumbnail_url"
+        )
     }
 
     @Test
@@ -45,6 +59,24 @@ class BookServiceTest {
         val foundBook = bookService.getBookById(book.id)
         assertNotNull(foundBook)
         assertEquals("Sample Book", foundBook?.title)
+    }
+
+    @Test
+    fun addBookByIsbn_ShouldReturnSavedBook() {
+        `when`(bookRepository.findByIsbn(book.isbn)).thenReturn(Optional.empty())
+        `when`(googleApiService.fetchBookInfoByISBN(book.isbn)).thenReturn(book)
+        `when`(bookRepository.save(book)).thenReturn(book)
+        val savedBook = bookService.addBookByIsbn(book.isbn)
+        assertNotNull(savedBook)
+        assertEquals("Sample Book", savedBook.title)
+    }
+
+    @Test
+    fun addBookByIsbn_ShouldReturnException_WhenBookExists() {
+        `when`(bookRepository.findByIsbn(book.isbn)).thenReturn(Optional.of(book))
+        assertThrows(IllegalArgumentException::class.java) {
+            bookService.addBookByIsbn(book.isbn)
+        }
     }
 
     @Test

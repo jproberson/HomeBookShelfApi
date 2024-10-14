@@ -1,6 +1,7 @@
 package com.example.homebookshelfapi.models
 
 import jakarta.persistence.*
+import java.time.LocalDate
 import java.util.*
 
 @Entity
@@ -17,8 +18,20 @@ data class Book(
     val title: String,
 
     @Column(nullable = false)
-    val author: String,
+    val authors: String,
 
     @Column(nullable = true)
-    val publishedYear: Int? = null
+    val description: String? = null,
+
+    @Column(nullable = true)
+    val categories: String? = null,
+
+    @Column(nullable = true)
+    val publishedDate: LocalDate? = null,
+
+    @Column(nullable = true)
+    val pageCount: Int? = null,
+
+    @Column(nullable = true)
+    val thumbnail: String? = null
 )

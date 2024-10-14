@@ -40,6 +40,12 @@ class BookController(private val bookService: BookService) {
         return ResponseEntity.status(HttpStatus.CREATED).body(newBook)
     }
 
+    @PostMapping("/isbn/{isbn}")
+    fun addBookByIsbn(@PathVariable isbn: String): ResponseEntity<Book> {
+        val newBook = bookService.addBookByIsbn(isbn)
+        return ResponseEntity.status(HttpStatus.CREATED).body(newBook)
+    }
+
     @PutMapping("/{id}")
     fun updateBook(@PathVariable id: UUID, @RequestBody updatedBook: Book): ResponseEntity<Book> {
         val book = bookService.updateBook(id, updatedBook)

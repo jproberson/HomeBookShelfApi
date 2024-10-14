@@ -1,4 +1,4 @@
-package com.example.homebookshelfapi.Integration
+package com.example.homebookshelfapi.integration
 
 import com.example.homebookshelfapi.models.Users
 import com.fasterxml.jackson.databind.ObjectMapper

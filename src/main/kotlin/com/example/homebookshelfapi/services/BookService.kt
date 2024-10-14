@@ -1,12 +1,13 @@
 package com.example.homebookshelfapi.services
 
+import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.models.Book
 import com.example.homebookshelfapi.repositories.BookRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
 
 @Service
-class BookService(private val bookRepository: BookRepository) {
+class BookService(private val bookRepository: BookRepository, private val googleApiService: GoogleApiService) {
 
     fun getAllBooks(): List<Book> {
         return bookRepository.findAll()
@@ -27,6 +28,18 @@ class BookService(private val bookRepository: BookRepository) {
         }
         return bookRepository.save(book)
     }
+
+    fun addBookByIsbn(isbn: String): Book {
+        val existingBook = bookRepository.findByIsbn(isbn)
+        if (existingBook.isPresent) {
+            throw IllegalArgumentException("A book with this ISBN already exists")
+        }
+
+        val book = googleApiService.fetchBookInfoByISBN(isbn) ?: throw IllegalArgumentException("Book not found");
+
+        return bookRepository.save(book)
+    }
+
 
     fun updateBook(id: UUID, updatedBook: Book): Book? {
         return if (bookRepository.existsById(id)) {

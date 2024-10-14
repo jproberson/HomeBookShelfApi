@@ -1,4 +1,4 @@
-package com.example.homebookshelfapi.Integration
+package com.example.homebookshelfapi.integration
 
 import com.example.homebookshelfapi.models.Book
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -14,12 +14,12 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDate
 
 @SpringBootTest(properties = ["spring.profiles.active=test"])
 @AutoConfigureMockMvc
 @Transactional
 class BookControllerIntegrationTest {
-    // TODO: Switch to using Test Containers?
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -31,8 +31,12 @@ class BookControllerIntegrationTest {
         val book = Book(
             isbn = "1234567890",
             title = "The Hobbit",
-            author = "J.R.R. Tolkien",
-            publishedYear = 1937
+            authors = "J.R.R. Tolkien",
+            description = "A fantasy novel",
+            categories = "Fantasy",
+            publishedDate = LocalDate.of(1937, 9, 21),
+            pageCount = 310,
+            thumbnail = "some_thumbnail_url"
         )
         bookJson = ObjectMapper().writeValueAsString(book)
     }
@@ -46,6 +50,7 @@ class BookControllerIntegrationTest {
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.title").value("The Hobbit"))
+            .andExpect(jsonPath("$.publishedDate").value("1937-09-21"))
     }
 
     @Test
@@ -103,8 +108,12 @@ class BookControllerIntegrationTest {
         val updatedBook = Book(
             isbn = "1234567890",
             title = "The Hobbit Updated",
-            author = "J.R.R. Tolkien",
-            publishedYear = 1937
+            authors = "J.R.R. Tolkien",
+            description = "A fantasy novel",
+            categories = "Fantasy",
+            publishedDate = LocalDate.of(1937, 9, 21),
+            pageCount = 310,
+            thumbnail = "some_thumbnail_url"
         )
         val updatedBookJson = ObjectMapper().writeValueAsString(updatedBook)
 

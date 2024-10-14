@@ -1,7 +1,10 @@
 ### GET ALL BOOKS
 GET http://localhost:8080/api/books
 
-### ADD A BOOK
+### ADD A BOOK BY ISBN
+POST http://localhost:8080/api/books/isbn/9780618640157
+
+### ADD A BOOK MANUALLY
 POST http://localhost:8080/api/books
 Content-Type: application/json
 
