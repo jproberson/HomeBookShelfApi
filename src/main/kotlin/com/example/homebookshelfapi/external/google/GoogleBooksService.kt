@@ -1,7 +1,7 @@
 package com.example.homebookshelfapi.external.google
 
 import com.example.homebookshelfapi.external.ApiEndpoints
-import com.example.homebookshelfapi.models.Book
+import com.example.homebookshelfapi.domain.Book
 import com.example.homebookshelfapi.utils.DateParserUtil
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate

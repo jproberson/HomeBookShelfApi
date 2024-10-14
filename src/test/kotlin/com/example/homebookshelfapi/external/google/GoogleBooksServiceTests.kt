@@ -1,7 +1,7 @@
 package com.example.homebookshelfapi.external.google
 
 import com.example.homebookshelfapi.external.ApiEndpoints
-import com.example.homebookshelfapi.models.Book
+import com.example.homebookshelfapi.domain.Book
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

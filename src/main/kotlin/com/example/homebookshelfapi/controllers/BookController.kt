@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.controllers
 
-import com.example.homebookshelfapi.models.Book
+import com.example.homebookshelfapi.domain.Book
 import com.example.homebookshelfapi.services.BookService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

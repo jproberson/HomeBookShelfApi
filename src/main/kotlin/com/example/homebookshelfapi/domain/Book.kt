@@ -1,4 +1,4 @@
-package com.example.homebookshelfapi.models
+package com.example.homebookshelfapi.domain
 
 import jakarta.persistence.*
 import java.time.LocalDate

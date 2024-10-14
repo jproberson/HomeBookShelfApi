@@ -1,7 +1,7 @@
 package com.example.homebookshelfapi.services
 
 import com.example.homebookshelfapi.external.google.GoogleApiService
-import com.example.homebookshelfapi.models.Book
+import com.example.homebookshelfapi.domain.Book
 import com.example.homebookshelfapi.repositories.BookRepository
 import org.springframework.stereotype.Service
 import java.util.UUID

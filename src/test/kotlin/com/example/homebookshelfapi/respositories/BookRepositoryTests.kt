@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.repositories
 
-import com.example.homebookshelfapi.models.Book
+import com.example.homebookshelfapi.domain.Book
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach

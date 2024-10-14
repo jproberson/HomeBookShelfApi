@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.integration
 
-import com.example.homebookshelfapi.models.Book
+import com.example.homebookshelfapi.domain.Book
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
 import jakarta.transaction.Transactional

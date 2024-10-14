@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.services
 
-import com.example.homebookshelfapi.models.Users
+import com.example.homebookshelfapi.domain.Users
 import com.example.homebookshelfapi.repositories.UserRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
