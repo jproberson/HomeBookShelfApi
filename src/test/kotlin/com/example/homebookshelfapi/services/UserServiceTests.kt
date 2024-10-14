@@ -1,7 +1,8 @@
 package com.example.homebookshelfapi.services
 
-import com.example.homebookshelfapi.domain.User
+import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.repositories.UserRepository
+import com.example.homebookshelfapi.services.impl.UsersServiceImpl
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.InjectMocks
@@ -12,15 +13,15 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class UserServiceTests {
+class UserEntityServiceTests {
 
     @Mock
     private lateinit var userRepository: UserRepository
 
     @InjectMocks
-    private lateinit var usersService: UsersService
+    private lateinit var usersService: UsersServiceImpl
 
-    private lateinit var user: User
+    private lateinit var user: UserEntity
 
     private lateinit var id: UUID
 
@@ -28,7 +29,7 @@ class UserServiceTests {
     fun setup() {
         id = UUID.randomUUID()
         MockitoAnnotations.openMocks(this)
-        user = User(id = id, name = "Jake")
+        user = UserEntity(id = id, name = "Jake")
     }
 
     @Test
@@ -59,10 +60,10 @@ class UserServiceTests {
 
     @Test
     fun updateUser_ShouldReturnUpdatedUser() {
-        val updatedUser = User(id = id, name = "Jake Smith")
+        val updatedUserEntity = UserEntity(id = id, name = "Jake Smith")
         `when`(userRepository.existsById(id)).thenReturn(true)
-        `when`(userRepository.save(updatedUser)).thenReturn(updatedUser)
-        val user = usersService.updateUser(id, updatedUser)
+        `when`(userRepository.save(updatedUserEntity)).thenReturn(updatedUserEntity)
+        val user = usersService.updateUser(id, updatedUserEntity)
         assertNotNull(user)
         assertEquals("Jake Smith", user.name)
     }

@@ -1,8 +1,8 @@
 package com.example.homebookshelfapi.services
 
 import com.example.homebookshelfapi.external.google.GoogleApiService
-import com.example.homebookshelfapi.domain.Book
-import com.example.homebookshelfapi.domain.User
+import com.example.homebookshelfapi.domain.entities.BookEntity
+import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.repositories.BookRepository
 import com.example.homebookshelfapi.repositories.UserRepository
 import org.junit.jupiter.api.Assertions.*
@@ -30,17 +30,17 @@ class BookServiceTest {
     private lateinit var userRepository: UserRepository
 
     @InjectMocks
-    private lateinit var bookService: BookService
+    private lateinit var bookService: BookServiceImpl
 
-    private lateinit var book: Book
-    private lateinit var user: User
+    private lateinit var book: BookEntity
+    private lateinit var user: UserEntity
     private lateinit var id: UUID
 
     @BeforeEach
     fun setup() {
         id = UUID.randomUUID()
         MockitoAnnotations.openMocks(this)
-        book = Book(
+        book = BookEntity(
             id = id,
             isbn = "isbn",
             title = "Sample Book",
@@ -51,7 +51,7 @@ class BookServiceTest {
             pageCount = 350,
             thumbnail = "some_thumbnail_url"
         )
-        user = User(id = UUID.randomUUID(), name = "Test User")
+        user = UserEntity(id = UUID.randomUUID(), name = "Test User")
     }
 
     @Test
@@ -129,17 +129,20 @@ class BookServiceTest {
     }
 
     @Test
-    fun deleteBook_ShouldReturnTrueWhenBookExists() {
-        `when`(bookRepository.existsById(book.id)).thenReturn(true)
-        doNothing().`when`(bookRepository).deleteById(book.id)
-        val isDeleted = bookService.deleteBook(book.id)
+    fun deleteBook_ShouldReturnTrueWhenBookExistsForUser() {
+        `when`(userBooksService.getUserBooks(user.id)).thenReturn(listOf(book))
+        `when`(userBooksService.deleteBookForUser(user.id, book.id)).thenReturn(true)
+
+        val isDeleted = bookService.deleteBook(book.id, user.id)
+
         assertTrue(isDeleted)
     }
+
 
     @Test
     fun deleteBook_ShouldReturnFalseWhenBookNotFound() {
         `when`(bookRepository.existsById(book.id)).thenReturn(false)
-        val isDeleted = bookService.deleteBook(book.id)
+        val isDeleted = bookService.deleteBook(book.id, user.id)
         assertFalse(isDeleted)
     }
 }

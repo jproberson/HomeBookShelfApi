@@ -1,7 +1,10 @@
 package com.example.homebookshelfapi.controllers
 
-import com.example.homebookshelfapi.domain.User
+import com.example.homebookshelfapi.domain.dto.UserDto
+import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.services.UsersService
+import com.example.homebookshelfapi.toUserDto
+import com.example.homebookshelfapi.toUserEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -15,7 +18,7 @@ class UsersController(private val usersService: UsersService) {
     fun getAllUsers() = usersService.getAllUsers()
 
     @GetMapping("/{id}")
-    fun getUserById(@PathVariable id: UUID): ResponseEntity<User> {
+    fun getUserById(@PathVariable id: UUID): ResponseEntity<UserEntity> {
         val user = usersService.getUserById(id)
         return if (user != null) {
             ResponseEntity.ok(user)
@@ -25,16 +28,16 @@ class UsersController(private val usersService: UsersService) {
     }
 
     @PostMapping
-    fun addUser(@RequestBody user: User): ResponseEntity<User> {
-        val newUser = usersService.addUser(user)
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser)
+    fun addUser(@RequestBody user: UserDto): ResponseEntity<UserDto> {
+        val newUser = usersService.addUser(user.toUserEntity())
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUser.toUserDto())
     }
 
     @PutMapping("/{id}")
-    fun updateUser(@PathVariable id: UUID, @RequestBody updatedUser: User): ResponseEntity<User> {
-        val user = usersService.updateUser(id, updatedUser)
+    fun updateUser(@PathVariable id: UUID, @RequestBody updatedUser: UserDto): ResponseEntity<UserDto> {
+        val user = usersService.updateUser(id, updatedUser.toUserEntity())
         return if (user != null) {
-            ResponseEntity.ok(user)
+            ResponseEntity.ok(user.toUserDto())
         } else {
             ResponseEntity.notFound().build()
         }

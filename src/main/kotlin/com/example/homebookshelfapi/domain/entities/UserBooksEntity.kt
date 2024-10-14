@@ -1,11 +1,11 @@
-package com.example.homebookshelfapi.domain
+package com.example.homebookshelfapi.domain.entities
 
 import jakarta.persistence.*
 import java.util.*
 
 @Entity
 @Table(name = "user_books")
-data class UserBooks(
+data class UserBooksEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID = UUID.randomUUID(),

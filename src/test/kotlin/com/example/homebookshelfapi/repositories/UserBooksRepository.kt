@@ -1,8 +1,8 @@
 package com.example.homebookshelfapi.repositories
 
-import com.example.homebookshelfapi.domain.Book
-import com.example.homebookshelfapi.domain.User
-import com.example.homebookshelfapi.domain.UserBooks
+import com.example.homebookshelfapi.domain.entities.BookEntity
+import com.example.homebookshelfapi.domain.entities.UserEntity
+import com.example.homebookshelfapi.domain.entities.UserBooksEntity
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import java.time.LocalDate
 
 @DataJpaTest
-class UserBooksRepositoryTest {
+class UserEntityBooksRepositoryTest {
 
     @Autowired
     private lateinit var userRepository: UserRepository
@@ -22,15 +22,15 @@ class UserBooksRepositoryTest {
     @Autowired
     private lateinit var userBooksRepository: UserBooksRepository
 
-    private lateinit var user: User
-    private lateinit var book: Book
-    private lateinit var userBook: UserBooks
+    private lateinit var user: UserEntity
+    private lateinit var book: BookEntity
+    private lateinit var userBook: UserBooksEntity
 
     @BeforeEach
     fun setup() {
-        user = userRepository.save(User(name = "Test User"))
+        user = userRepository.save(UserEntity(name = "Test User"))
         book = bookRepository.save(
-            Book(
+            BookEntity(
                 isbn = "1234567890",
                 title = "Sample Book",
                 authors = "Sample Author",
@@ -41,7 +41,7 @@ class UserBooksRepositoryTest {
                 thumbnail = "some_thumbnail_url"
             )
         )
-        userBook = UserBooks(userId = user.id, bookId = book.id)
+        userBook = UserBooksEntity(userId = user.id, bookId = book.id)
         userBooksRepository.save(userBook)
     }
 
@@ -53,8 +53,8 @@ class UserBooksRepositoryTest {
 
     @Test
     fun `existsByUserIdAndBookId should return false when a UserBook does not exist`() {
-        val otherBook = bookRepository.save(
-            Book(
+        val otherBookEntity = bookRepository.save(
+            BookEntity(
                 isbn = "0987654321",
                 title = "Another Book",
                 authors = "Another Author",
@@ -65,7 +65,7 @@ class UserBooksRepositoryTest {
                 thumbnail = "other_thumbnail_url"
             )
         )
-        val exists = userBooksRepository.existsByUserIdAndBookId(user.id, otherBook.id)
+        val exists = userBooksRepository.existsByUserIdAndBookId(user.id, otherBookEntity.id)
         assertFalse(exists)
     }
 

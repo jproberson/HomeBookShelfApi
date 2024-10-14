@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.repositories
 
-import com.example.homebookshelfapi.domain.Book
+import com.example.homebookshelfapi.domain.entities.BookEntity
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -11,16 +11,16 @@ import java.time.LocalDate
 
 @DataJpaTest
 @Transactional
-class BookRepositoryTest {
+class BookEntityRepositoryTest {
 
     @Autowired
     private lateinit var bookRepository: BookRepository
 
-    private lateinit var book: Book
+    private lateinit var book: BookEntity
 
     @BeforeEach
     fun setup() {
-        book = Book(
+        book = BookEntity(
             isbn = "1234567890",
             title = "Sample Book",
             authors = "Author Name",

@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.integration
 
-import com.example.homebookshelfapi.domain.Book
+import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
 import jakarta.transaction.Transactional
@@ -31,7 +31,7 @@ class BookApiIntegrationTests {
 
     @BeforeEach
     fun setup() {
-        val book = Book(
+        val bookEntity = BookEntity(
             isbn = "1234567890",
             title = "The Hobbit",
             authors = "J.R.R. Tolkien",
@@ -41,13 +41,13 @@ class BookApiIntegrationTests {
             pageCount = 310,
             thumbnail = "some_thumbnail_url"
         )
-        bookJson = objectMapper.writeValueAsString(book)
+        bookJson = objectMapper.writeValueAsString(bookEntity)
     }
 
     @Test
     fun addBookShouldCreateBook() {
         mockMvc.perform(
-            post("/api/books")
+            post("/v1/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(bookJson)
         )
@@ -58,7 +58,7 @@ class BookApiIntegrationTests {
 
     @Test
     fun getAllBooksShouldReturnAllBooks() {
-        mockMvc.perform(get("/api/books"))
+        mockMvc.perform(get("/v1/api/books"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$").isArray)
     }
@@ -66,7 +66,7 @@ class BookApiIntegrationTests {
     @Test
     fun getBookByIdShouldReturnBook() {
         val result = mockMvc.perform(
-            post("/api/books")
+            post("/v1/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(bookJson)
         )
@@ -75,7 +75,7 @@ class BookApiIntegrationTests {
 
         val bookId = JsonPath.read<String>(result.response.contentAsString, "$.id")
 
-        mockMvc.perform(get("/api/books/$bookId"))
+        mockMvc.perform(get("/v1/api/books/$bookId"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.title").value("The Hobbit"))
     }
@@ -83,7 +83,7 @@ class BookApiIntegrationTests {
     @Test
     fun getBookByIsbnShouldReturnBook() {
         val result = mockMvc.perform(
-            post("/api/books")
+            post("/v1/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(bookJson)
         )
@@ -92,7 +92,7 @@ class BookApiIntegrationTests {
 
         val bookIsbn = JsonPath.read<String>(result.response.contentAsString, "$.isbn")
 
-        mockMvc.perform(get("/api/books/isbn/$bookIsbn"))
+        mockMvc.perform(get("/v1/api/books/isbn/$bookIsbn"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.title").value("The Hobbit"))
     }
@@ -100,7 +100,7 @@ class BookApiIntegrationTests {
     @Test
     fun updateBookShouldReturnUpdatedBook() {
         val result = mockMvc.perform(
-            post("/api/books")
+            post("/v1/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(bookJson)
         )
@@ -108,7 +108,7 @@ class BookApiIntegrationTests {
             .andReturn()
 
         val bookId = JsonPath.read<String>(result.response.contentAsString, "$.id")
-        val updatedBook = Book(
+        val updatedBookEntity = BookEntity(
             isbn = "1234567890",
             title = "The Hobbit Updated",
             authors = "J.R.R. Tolkien",
@@ -118,10 +118,10 @@ class BookApiIntegrationTests {
             pageCount = 310,
             thumbnail = "some_thumbnail_url"
         )
-        val updatedBookJson = objectMapper.writeValueAsString(updatedBook)
+        val updatedBookJson = objectMapper.writeValueAsString(updatedBookEntity)
 
         mockMvc.perform(
-            put("/api/books/$bookId")
+            put("/v1/api/books/$bookId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updatedBookJson)
         )
@@ -132,7 +132,7 @@ class BookApiIntegrationTests {
     @Test
     fun deleteBookShouldRemoveBook() {
         val result = mockMvc.perform(
-            post("/api/books")
+            post("/v1/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(bookJson)
         )
@@ -141,7 +141,12 @@ class BookApiIntegrationTests {
 
         val bookId = JsonPath.read<String>(result.response.contentAsString, "$.id")
 
-        mockMvc.perform(delete("/api/books/$bookId"))
+        mockMvc.perform(
+            post("/v1/api/books/isbn/{isbn}", "1234567890")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated)
+
+        mockMvc.perform(delete("/v1/api/books/$bookId"))
             .andExpect(status().isNoContent)
     }
 }

@@ -1,79 +1,23 @@
 package com.example.homebookshelfapi.services
 
-import com.example.homebookshelfapi.external.google.GoogleApiService
-import com.example.homebookshelfapi.domain.Book
-import com.example.homebookshelfapi.repositories.BookRepository
-import com.example.homebookshelfapi.repositories.UserRepository
-import org.springframework.stereotype.Service
-import java.util.UUID
+import com.example.homebookshelfapi.domain.entities.BookEntity
+import java.util.*
 
-@Service
-class BookService(
-    private val bookRepository: BookRepository,
-    private val googleApiService: GoogleApiService,
-    private val userBooksService: UserBooksService,
-    private val userRepository: UserRepository
-) {
+interface BookService {
 
-    fun getAllBooks(): List<Book> {
-        return bookRepository.findAll()
-    }
+    fun getAllBooks(): List<BookEntity>
 
-    fun getAllBooksByUserId(userId: UUID): List<Book> {
-        return userBooksService.getUserBooks(userId)
-    }
+    fun getAllBooksByUserId(userId: UUID): List<BookEntity>
 
-    fun getBookById(id: UUID): Book? {
-        return bookRepository.findById(id).orElse(null)
-    }
+    fun getBookById(id: UUID): BookEntity?
 
-    fun getBookByIsbn(isbn: String): Book? {
-        return bookRepository.findByIsbn(isbn).orElse(null)
-    }
+    fun getBookByIsbn(isbn: String): BookEntity?
 
-    fun addBook(book: Book): Book {
-        val existingBook = bookRepository.findByIsbn(book.isbn)
-        if (existingBook.isPresent) {
-            throw IllegalArgumentException("A book with this ISBN already exists")
-        }
-        return bookRepository.save(book)
-    }
+    fun addBook(bookEntity: BookEntity): BookEntity
 
-    fun addBookByIsbn(isbn: String, userId: UUID): Book {
+    fun addBookByIsbn(isbn: String, userId: UUID): BookEntity
 
-        val existingBook = bookRepository.findByIsbn(isbn)
+    fun updateBook(id: UUID, updatedBookEntity: BookEntity): BookEntity?
 
-        if (existingBook.isPresent) {
-            userBooksService.addBookToUser(userId, existingBook.get().id)
-            return existingBook.get()
-        }
-
-        val fetchedBook = googleApiService.fetchBookInfoByISBN(isbn) ?: throw IllegalArgumentException("Book not found")
-
-        val savedBook = bookRepository.save(fetchedBook)
-
-        userBooksService.addBookToUser(userId, savedBook.id)
-
-        return savedBook
-    }
-
-
-    fun updateBook(id: UUID, updatedBook: Book): Book? {
-        return if (bookRepository.existsById(id)) {
-            bookRepository.save(updatedBook.copy(id = id))
-        } else {
-            null
-        }
-    }
-
-    fun deleteBook(bookId: UUID, userId: UUID): Boolean {
-        val userBooks = userBooksService.getUserBooks(userId)
-
-        return if (userBooks.any { it.id == bookId }) {
-            userBooksService.deleteBookForUser(userId, bookId)
-            true
-        } else {
-            false
-        }
-    }
+    fun deleteBook(bookId: UUID, userId: UUID): Boolean
 }

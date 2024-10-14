@@ -1,7 +1,7 @@
 package com.example.homebookshelfapi.external.google
 
 import com.example.homebookshelfapi.external.ApiEndpoints
-import com.example.homebookshelfapi.domain.Book
+import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,7 +36,7 @@ class GoogleApiServiceTest {
 
     @Test
     fun `fetchBookInfoByISBN should return Book for valid ISBN`() {
-        val mockBook = Book(
+        val mockBookEntity = BookEntity(
             id = UUID.randomUUID(),
             isbn = "1234567890",
             title = "book title",
@@ -53,32 +53,32 @@ class GoogleApiServiceTest {
                 "items" to listOf(
                     mapOf(
                         "volumeInfo" to mapOf(
-                            "title" to mockBook.title,
+                            "title" to mockBookEntity.title,
                             "authors" to listOf("book author"),
-                            "description" to mockBook.description,
+                            "description" to mockBookEntity.description,
                             "categories" to listOf("Fiction"),
                             "publishedDate" to "2024-09-25",
-                            "pageCount" to mockBook.pageCount,
-                            "imageLinks" to mapOf("thumbnail" to mockBook.thumbnail)
+                            "pageCount" to mockBookEntity.pageCount,
+                            "imageLinks" to mapOf("thumbnail" to mockBookEntity.thumbnail)
                         )
                     )
                 )
             )
         )
 
-        val expectedUrl = "${ApiEndpoints.GOOGLE_BOOKS_API}${mockBook.isbn}"
+        val expectedUrl = "${ApiEndpoints.GOOGLE_BOOKS_API}${mockBookEntity.isbn}"
         mockServer.expect(requestTo(expectedUrl))
             .andRespond(withSuccess(mockApiResponse, org.springframework.http.MediaType.APPLICATION_JSON))
 
-        val book: Book? = googleApiService.fetchBookInfoByISBN("1234567890")
+        val bookEntity: BookEntity? = googleApiService.fetchBookInfoByISBN("1234567890")
 
-        assertNotNull(book)
-        assertEquals("book title", book?.title)
-        assertEquals("book author", book?.authors)
-        assertEquals("a mocked book", book?.description)
-        assertEquals("Fiction", book?.categories)
-        assertEquals(LocalDate.of(2024, 9, 25), book?.publishedDate)
-        assertEquals(100, book?.pageCount)
-        assertEquals("https://example.com/thumbnail.jpg", book?.thumbnail)
+        assertNotNull(bookEntity)
+        assertEquals("book title", bookEntity?.title)
+        assertEquals("book author", bookEntity?.authors)
+        assertEquals("a mocked book", bookEntity?.description)
+        assertEquals("Fiction", bookEntity?.categories)
+        assertEquals(LocalDate.of(2024, 9, 25), bookEntity?.publishedDate)
+        assertEquals(100, bookEntity?.pageCount)
+        assertEquals("https://example.com/thumbnail.jpg", bookEntity?.thumbnail)
     }
 }

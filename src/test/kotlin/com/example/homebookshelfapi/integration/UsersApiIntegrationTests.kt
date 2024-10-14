@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.integration
 
-import com.example.homebookshelfapi.domain.User
+import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
 import jakarta.transaction.Transactional
@@ -27,14 +27,14 @@ class UsersApiIntegrationTest {
 
     @BeforeEach
     fun setup() {
-        val userObject = User(name = "Jake")
-        userJson = ObjectMapper().writeValueAsString(userObject)
+        val user = UserEntity(name = "Jake")
+        userJson = ObjectMapper().writeValueAsString(user)
     }
 
     @Test
     fun addUserShouldCreateUser() {
         mockMvc.perform(
-            post("/api/users")
+            post("/v1/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userJson)
         )
@@ -44,7 +44,7 @@ class UsersApiIntegrationTest {
 
     @Test
     fun getAllUsersShouldReturnAllUsers() {
-        mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/v1/api/users"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$").isArray)
     }
@@ -52,7 +52,7 @@ class UsersApiIntegrationTest {
     @Test
     fun getUserByIdShouldReturnUser() {
         val result = mockMvc.perform(
-            post("/api/users")
+            post("/v1/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userJson)
         )
@@ -61,18 +61,18 @@ class UsersApiIntegrationTest {
 
         val id = JsonPath.read<String>(result.response.contentAsString, "$.id")
 
-        mockMvc.perform(get("/api/users/$id"))
+        mockMvc.perform(get("/v1/api/users/$id"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name").value("Jake"))
     }
 
     @Test
     fun updateUserShouldReturnUpdatedUser() {
-        val updatedUser = User(name = "Jake Smith")
-        val updatedUserJson = ObjectMapper().writeValueAsString(updatedUser)
+        val updatedUserEntity = UserEntity(name = "Jake Smith")
+        val updatedUserJson = ObjectMapper().writeValueAsString(updatedUserEntity)
 
         val result = mockMvc.perform(
-            post("/api/users")
+            post("/v1/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userJson)
         )
@@ -82,7 +82,7 @@ class UsersApiIntegrationTest {
         val id = JsonPath.read<String>(result.response.contentAsString, "$.id")
 
         mockMvc.perform(
-            put("/api/users/$id")
+            put("/v1/api/users/$id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updatedUserJson)
         )
@@ -93,7 +93,7 @@ class UsersApiIntegrationTest {
     @Test
     fun deleteUserShouldRemoveUser() {
         val result = mockMvc.perform(
-            post("/api/users")
+            post("/v1/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userJson)
         )
@@ -102,7 +102,7 @@ class UsersApiIntegrationTest {
 
         val id = JsonPath.read<String>(result.response.contentAsString, "$.id")
 
-        mockMvc.perform(delete("/api/users/$id"))
+        mockMvc.perform(delete("/v1/api/users/$id"))
             .andExpect(status().isNoContent)
     }
 }

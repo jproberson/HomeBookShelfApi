@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.repositories
 
-import com.example.homebookshelfapi.domain.User
+import com.example.homebookshelfapi.domain.entities.UserEntity
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,17 +12,17 @@ import kotlin.test.assertNotNull
 
 @DataJpaTest
 @Transactional
-class UserRepositoryTests {
+class UserEntityRepositoryTests {
     // TODO: Switch to Test Containers?
 
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    private lateinit var user: User
+    private lateinit var user: UserEntity
 
     @BeforeEach
     fun setup() {
-        user = User(name = "Jake")
+        user = UserEntity(name = "Jake")
     }
 
     @Test

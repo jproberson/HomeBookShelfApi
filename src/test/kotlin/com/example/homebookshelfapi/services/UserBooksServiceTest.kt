@@ -1,10 +1,11 @@
 package com.example.homebookshelfapi.services
 
-import com.example.homebookshelfapi.domain.Book
-import com.example.homebookshelfapi.domain.User
-import com.example.homebookshelfapi.domain.UserBooks
+import com.example.homebookshelfapi.domain.entities.BookEntity
+import com.example.homebookshelfapi.domain.entities.UserEntity
+import com.example.homebookshelfapi.domain.entities.UserBooksEntity
 import com.example.homebookshelfapi.repositories.BookRepository
 import com.example.homebookshelfapi.repositories.UserBooksRepository
+import com.example.homebookshelfapi.services.impl.UserBooksServiceImpl
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.InjectMocks
@@ -18,7 +19,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class UserBooksServiceTest {
+class UserEntityBooksServiceTest {
 
     @Mock
     private lateinit var bookRepository: BookRepository
@@ -27,17 +28,17 @@ class UserBooksServiceTest {
     private lateinit var userBooksRepository: UserBooksRepository
 
     @InjectMocks
-    private lateinit var userBooksService: UserBooksService
+    private lateinit var userBooksService: UserBooksServiceImpl
 
-    private lateinit var user: User
-    private lateinit var book: Book
-    private lateinit var userBook: UserBooks
+    private lateinit var user: UserEntity
+    private lateinit var book: BookEntity
+    private lateinit var userBook: UserBooksEntity
 
     @BeforeEach
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        user = User(id = UUID.randomUUID(), name = "Test User")
-        book = Book(
+        user = UserEntity(id = UUID.randomUUID(), name = "Test User")
+        book = BookEntity(
             id = UUID.randomUUID(),
             isbn = "1234567890",
             title = "Sample Book",
@@ -48,7 +49,7 @@ class UserBooksServiceTest {
             pageCount = 100,
             thumbnail = "some_thumbnail_url"
         )
-        userBook = UserBooks(userId = user.id, bookId = book.id)
+        userBook = UserBooksEntity(userId = user.id, bookId = book.id)
     }
 
     @Test
@@ -68,14 +69,14 @@ class UserBooksServiceTest {
     fun `addBookToUser should save a new UserBook when it does not exist`() {
         `when`(userBooksRepository.existsByUserIdAndBookId(user.id, book.id)).thenReturn(false)
         userBooksService.addBookToUser(user.id, book.id)
-        verify(userBooksRepository, times(1)).save(any(UserBooks::class.java))
+        verify(userBooksRepository, times(1)).save(any(UserBooksEntity::class.java))
     }
 
     @Test
     fun `addBookToUser should not save a UserBook when it already exists`() {
         `when`(userBooksRepository.existsByUserIdAndBookId(user.id, book.id)).thenReturn(true)
         userBooksService.addBookToUser(user.id, book.id)
-        verify(userBooksRepository, never()).save(any(UserBooks::class.java))
+        verify(userBooksRepository, never()).save(any(UserBooksEntity::class.java))
     }
 
     @Test
