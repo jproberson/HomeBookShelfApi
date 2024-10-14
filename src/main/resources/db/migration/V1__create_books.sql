@@ -11,3 +11,5 @@ CREATE TABLE books
     page_count     INT DEFAULT NULL,
     thumbnail      VARCHAR(255) DEFAULT NULL
 );
+
+CREATE INDEX idx_isbn ON books (isbn);

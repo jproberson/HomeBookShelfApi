@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #addBookBtn {
+            background-color: #4CAF50; /* Green color for Add button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #addBookBtn:hover {
+            background-color: #45a049;
+        }
+
+        #book-list {
+            margin-top: 20px;
+        }
+
+        .book-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px;
+            background-color: #f4f4f4;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .book-thumbnail {
+            width: 80px;
+            height: auto;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .book-details {
+            flex-grow: 1;
+        }
+
+        .book-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .book-isbn {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .remove-btn {
+            padding: 5px 10px;
+            background-color: #f44336; /* Red color for Remove button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+<h1>My Book Library</h1>
+
+<!-- Form to add a book by ISBN -->
+<label for="isbn">Enter ISBN:</label>
+<input type="text" id="isbn" placeholder="ISBN">
+<button id="addBookBtn">Add Book</button>
+
+<!-- List of books -->
+<h2>Book List</h2>
+<div id="book-list"></div>
+
+<script>
+    const apiBaseUrl = 'http://localhost:8080/v1/api/books';
+
+    document.getElementById('addBookBtn').addEventListener('click', async () => {
+        const isbn = document.getElementById('isbn').value;
+        if (isbn) {
+            await addBook(isbn);
+        }
+    });
+
+    async function addBook(isbn) {
+        const response = await fetch(`${apiBaseUrl}/isbn/${isbn}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({isbn})
+        });
+        if (response.ok) {
+            loadBooks();
+            document.getElementById('isbn').value = '';
+        } else {
+            alert('Failed to add book');
+        }
+    }
+
+    async function loadBooks() {
+        const userId = "00000000-0000-0000-0000-000000000001"; // TODO: Implement user
+        const response = await fetch(`${apiBaseUrl}/user/${userId}`);
+        const books = await response.json();
+        const bookList = document.getElementById('book-list');
+        bookList.innerHTML = '';
+
+        books.forEach(book => {
+            const bookItem = document.createElement('div');
+            bookItem.classList.add('book-item');
+            bookItem.innerHTML = `
+                <img src="${book.thumbnail}" alt="${book.title} thumbnail" class="book-thumbnail">
+                <div class="book-details">
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-isbn">ISBN: ${book.isbn}</div>
+                    <button class="remove-btn" onclick="removeBook('${book.id}')">Remove</button>
+                </div>
+            `;
+            bookList.appendChild(bookItem);
+        });
+    }
+
+    async function removeBook(bookId) {
+        const response = await fetch(`${apiBaseUrl}/${bookId}`, {method: 'DELETE'});
+        if (response.ok) {
+            loadBooks();
+        } else {
+            alert('Failed to remove book');
+        }
+    }
+
+    window.onload = loadBooks;
+</script>
+
+</body>
+</html>

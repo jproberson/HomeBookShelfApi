@@ -2,11 +2,11 @@ package com.example.homebookshelfapi.services
 
 import com.example.homebookshelfapi.domain.Book
 import com.example.homebookshelfapi.domain.UserBooks
-import com.example.homebookshelfapi.domain.User
 import com.example.homebookshelfapi.repositories.BookRepository
 import com.example.homebookshelfapi.repositories.UserBooksRepository
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class UserBooksService(
@@ -30,6 +30,7 @@ class UserBooksService(
         }
     }
 
+    @Transactional
     fun deleteBookForUser(userId: UUID, bookId: UUID): Boolean {
         return if (userBookRepository.existsByUserIdAndBookId(userId, bookId)) {
             userBookRepository.deleteByUserIdAndBookId(userId, bookId)

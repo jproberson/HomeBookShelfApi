@@ -66,9 +66,11 @@ class BookService(
         }
     }
 
-    fun deleteBook(id: UUID): Boolean {
-        return if (bookRepository.existsById(id)) {
-            bookRepository.deleteById(id)
+    fun deleteBook(bookId: UUID, userId: UUID): Boolean {
+        val userBooks = userBooksService.getUserBooks(userId)
+
+        return if (userBooks.any { it.id == bookId }) {
+            userBooksService.deleteBookForUser(userId, bookId)
             true
         } else {
             false

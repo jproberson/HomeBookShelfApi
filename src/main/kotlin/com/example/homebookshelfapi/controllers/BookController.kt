@@ -9,14 +9,15 @@ import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/v1/api/books")
 class BookController(private val bookService: BookService) {
 
     @GetMapping
     fun getAllBooks(): List<Book> = bookService.getAllBooks()
 
     @GetMapping("/user/{userId}")
-    fun getAllBooksByUser(@PathVariable userId: UUID): List<Book> = bookService.getAllBooksByUserId(userId)
+    //TODO: Implement concept of multiple users
+    fun getAllBooksByUser(@PathVariable userId: UUID): List<Book> = bookService.getAllBooksByUserId(DEFAULT_USER_ID)
 
     @GetMapping("/{id}")
     fun getBookById(@PathVariable id: UUID): ResponseEntity<Book> {
@@ -60,9 +61,9 @@ class BookController(private val bookService: BookService) {
         }
     }
 
-    @DeleteMapping("/{id}")
-    fun deleteBook(@PathVariable id: UUID): ResponseEntity<Void> {
-        return if (bookService.deleteBook(id)) {
+    @DeleteMapping("/{bookId}")
+    fun deleteBook(@PathVariable bookId: UUID): ResponseEntity<Void> {
+        return if (bookService.deleteBook(bookId, DEFAULT_USER_ID)) {
             ResponseEntity.noContent().build()
         } else {
             ResponseEntity.notFound().build()

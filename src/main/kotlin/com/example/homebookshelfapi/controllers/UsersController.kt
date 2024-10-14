@@ -9,7 +9,7 @@ import java.util.*
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/v1/api/users")
 class UsersController(private val usersService: UsersService) {
     @GetMapping
     fun getAllUsers() = usersService.getAllUsers()
