@@ -8,5 +8,4 @@ import java.util.*
 @Repository
 interface BookRepository : JpaRepository<Book, UUID> {
     fun findByIsbn(isbn: String): Optional<Book>
-
 }

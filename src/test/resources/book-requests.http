@@ -1,22 +1,18 @@
 ### GET ALL BOOKS
 GET http://localhost:8080/api/books
 
+### GET ALL BOOKS BY USER
+GET http://localhost:8080/api/books/user/00000000-0000-0000-0000-000000000001
+
 ### ADD A BOOK BY ISBN
 POST http://localhost:8080/api/books/isbn/9780618640157
 
 ### ADD A BOOK MANUALLY
-POST http://localhost:8080/api/books
-Content-Type: application/json
-
-{
-  "isbn": "9780618640157",
-  "title": "The Lord of the Rings",
-  "author": "J.R.R. Tolkien",
-  "publishedYear": 1954
-}
+#POST http://localhost:8080/api/books
+#Content-Type: application/json
 
 ### GET A BOOK BY ID:
-GET http://localhost:8080/api/books/1
+#GET http://localhost:8080/api/books/1
 
 ### GET A BOOK BY ISBN:
 GET http://localhost:8080/api/books/isbn/9780618640157

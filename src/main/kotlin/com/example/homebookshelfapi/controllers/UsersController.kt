@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.controllers
 
-import com.example.homebookshelfapi.domain.Users
+import com.example.homebookshelfapi.domain.User
 import com.example.homebookshelfapi.services.UsersService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -15,7 +15,7 @@ class UsersController(private val usersService: UsersService) {
     fun getAllUsers() = usersService.getAllUsers()
 
     @GetMapping("/{id}")
-    fun getUserById(@PathVariable id: UUID): ResponseEntity<Users> {
+    fun getUserById(@PathVariable id: UUID): ResponseEntity<User> {
         val user = usersService.getUserById(id)
         return if (user != null) {
             ResponseEntity.ok(user)
@@ -25,14 +25,14 @@ class UsersController(private val usersService: UsersService) {
     }
 
     @PostMapping
-    fun addUser(@RequestBody users: Users): ResponseEntity<Users> {
-        val newUser = usersService.addUser(users)
+    fun addUser(@RequestBody user: User): ResponseEntity<User> {
+        val newUser = usersService.addUser(user)
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser)
     }
 
     @PutMapping("/{id}")
-    fun updateUser(@PathVariable id: UUID, @RequestBody updatedUsers: Users): ResponseEntity<Users> {
-        val user = usersService.updateUser(id, updatedUsers)
+    fun updateUser(@PathVariable id: UUID, @RequestBody updatedUser: User): ResponseEntity<User> {
+        val user = usersService.updateUser(id, updatedUser)
         return if (user != null) {
             ResponseEntity.ok(user)
         } else {

@@ -3,14 +3,24 @@ package com.example.homebookshelfapi.services
 import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.domain.Book
 import com.example.homebookshelfapi.repositories.BookRepository
+import com.example.homebookshelfapi.repositories.UserRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
 
 @Service
-class BookService(private val bookRepository: BookRepository, private val googleApiService: GoogleApiService) {
+class BookService(
+    private val bookRepository: BookRepository,
+    private val googleApiService: GoogleApiService,
+    private val userBooksService: UserBooksService,
+    private val userRepository: UserRepository
+) {
 
     fun getAllBooks(): List<Book> {
         return bookRepository.findAll()
+    }
+
+    fun getAllBooksByUserId(userId: UUID): List<Book> {
+        return userBooksService.getUserBooks(userId)
     }
 
     fun getBookById(id: UUID): Book? {
@@ -29,15 +39,22 @@ class BookService(private val bookRepository: BookRepository, private val google
         return bookRepository.save(book)
     }
 
-    fun addBookByIsbn(isbn: String): Book {
+    fun addBookByIsbn(isbn: String, userId: UUID): Book {
+
         val existingBook = bookRepository.findByIsbn(isbn)
+
         if (existingBook.isPresent) {
-            throw IllegalArgumentException("A book with this ISBN already exists")
+            userBooksService.addBookToUser(userId, existingBook.get().id)
+            return existingBook.get()
         }
 
-        val book = googleApiService.fetchBookInfoByISBN(isbn) ?: throw IllegalArgumentException("Book not found");
+        val fetchedBook = googleApiService.fetchBookInfoByISBN(isbn) ?: throw IllegalArgumentException("Book not found")
 
-        return bookRepository.save(book)
+        val savedBook = bookRepository.save(fetchedBook)
+
+        userBooksService.addBookToUser(userId, savedBook.id)
+
+        return savedBook
     }
 
 

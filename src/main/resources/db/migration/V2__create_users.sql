@@ -5,3 +5,5 @@ CREATE TABLE "users"
     name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO users (id, name, created_at) VALUES ('00000000-0000-0000-0000-000000000001', 'Default User', NOW());

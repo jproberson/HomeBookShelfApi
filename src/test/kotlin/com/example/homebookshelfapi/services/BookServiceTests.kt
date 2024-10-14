@@ -2,7 +2,9 @@ package com.example.homebookshelfapi.services
 
 import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.domain.Book
+import com.example.homebookshelfapi.domain.User
 import com.example.homebookshelfapi.repositories.BookRepository
+import com.example.homebookshelfapi.repositories.UserRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -21,10 +23,17 @@ class BookServiceTest {
     @Mock
     private lateinit var googleApiService: GoogleApiService
 
+    @Mock
+    private lateinit var userBooksService: UserBooksService
+
+    @Mock
+    private lateinit var userRepository: UserRepository
+
     @InjectMocks
     private lateinit var bookService: BookService
 
     private lateinit var book: Book
+    private lateinit var user: User
     private lateinit var id: UUID
 
     @BeforeEach
@@ -42,6 +51,7 @@ class BookServiceTest {
             pageCount = 350,
             thumbnail = "some_thumbnail_url"
         )
+        user = User(id = UUID.randomUUID(), name = "Test User")
     }
 
     @Test
@@ -62,20 +72,34 @@ class BookServiceTest {
     }
 
     @Test
-    fun addBookByIsbn_ShouldReturnSavedBook() {
+    fun addBookByIsbn_ShouldReturnSavedBook_WhenNewBookIsAdded() {
         `when`(bookRepository.findByIsbn(book.isbn)).thenReturn(Optional.empty())
         `when`(googleApiService.fetchBookInfoByISBN(book.isbn)).thenReturn(book)
         `when`(bookRepository.save(book)).thenReturn(book)
-        val savedBook = bookService.addBookByIsbn(book.isbn)
+        `when`(userRepository.findById(user.id)).thenReturn(Optional.of(user))
+
+        val savedBook = bookService.addBookByIsbn(book.isbn, user.id)
         assertNotNull(savedBook)
         assertEquals("Sample Book", savedBook.title)
+        verify(userBooksService, times(1)).addBookToUser(user.id, savedBook.id)
     }
 
     @Test
-    fun addBookByIsbn_ShouldReturnException_WhenBookExists() {
+    fun addBookByIsbn_ShouldReturnBook_WhenBookExists() {
         `when`(bookRepository.findByIsbn(book.isbn)).thenReturn(Optional.of(book))
+        `when`(userRepository.findById(user.id)).thenReturn(Optional.of(user))
+
+        val existingBook = bookService.addBookByIsbn(book.isbn, user.id)
+        assertNotNull(existingBook)
+        assertEquals("Sample Book", existingBook.title)
+        verify(userBooksService, times(1)).addBookToUser(user.id, existingBook.id)
+    }
+
+    @Test
+    fun addBookByIsbn_ShouldThrowException_WhenUserNotFound() {
+        `when`(userRepository.findById(user.id)).thenReturn(Optional.empty())
         assertThrows(IllegalArgumentException::class.java) {
-            bookService.addBookByIsbn(book.isbn)
+            bookService.addBookByIsbn(book.isbn, user.id)
         }
     }
 

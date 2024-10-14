@@ -1,7 +1,6 @@
-package com.example.homebookshelfapi.respositories
+package com.example.homebookshelfapi.repositories
 
-import com.example.homebookshelfapi.domain.Users
-import com.example.homebookshelfapi.repositories.UserRepository
+import com.example.homebookshelfapi.domain.User
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,22 +12,22 @@ import kotlin.test.assertNotNull
 
 @DataJpaTest
 @Transactional
-class UsersRepositoryTests {
+class UserRepositoryTests {
     // TODO: Switch to Test Containers?
 
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    private lateinit var users: Users
+    private lateinit var user: User
 
     @BeforeEach
     fun setup() {
-        users = Users(name = "Jake")
+        user = User(name = "Jake")
     }
 
     @Test
     fun saveUser_ShouldSaveAndReturnUser() {
-        val savedUser = userRepository.save(users)
+        val savedUser = userRepository.save(user)
 
         assertNotNull(savedUser.id)
         assertEquals("Jake", savedUser.name)
@@ -36,7 +35,7 @@ class UsersRepositoryTests {
 
     @Test
     fun findUserById_ShouldReturnUserWhenFound() {
-        val savedUser = userRepository.save(users)
+        val savedUser = userRepository.save(user)
         val foundUser = userRepository.findById(savedUser.id)
 
         assertNotNull(foundUser)
@@ -45,7 +44,7 @@ class UsersRepositoryTests {
 
     @Test
     fun findAllUsers_ShouldReturnAllUsers() {
-        userRepository.save(users)
+        userRepository.save(user)
         val users = userRepository.findAll()
 
         assertNotNull(users)
@@ -54,7 +53,7 @@ class UsersRepositoryTests {
 
     @Test
     fun deleteUser_ShouldRemoveUserById() {
-        val savedUser = userRepository.save(users)
+        val savedUser = userRepository.save(user)
         userRepository.deleteById(savedUser.id)
 
         val users = userRepository.findAll()

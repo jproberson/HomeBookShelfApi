@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.integration
 
-import com.example.homebookshelfapi.domain.Users
+import com.example.homebookshelfapi.domain.User
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
 import jakarta.transaction.Transactional
@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @SpringBootTest(properties = ["spring.profiles.active=test"])
 @AutoConfigureMockMvc
 @Transactional
-class UsersControllerIntegrationTest {
+class UsersApiIntegrationTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -27,7 +27,7 @@ class UsersControllerIntegrationTest {
 
     @BeforeEach
     fun setup() {
-        val userObject = Users(name = "Jake")
+        val userObject = User(name = "Jake")
         userJson = ObjectMapper().writeValueAsString(userObject)
     }
 
@@ -68,7 +68,7 @@ class UsersControllerIntegrationTest {
 
     @Test
     fun updateUserShouldReturnUpdatedUser() {
-        val updatedUser = Users(name = "Jake Smith")
+        val updatedUser = User(name = "Jake Smith")
         val updatedUserJson = ObjectMapper().writeValueAsString(updatedUser)
 
         val result = mockMvc.perform(

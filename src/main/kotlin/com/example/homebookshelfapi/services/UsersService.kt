@@ -1,32 +1,32 @@
 package com.example.homebookshelfapi.services
 
-import com.example.homebookshelfapi.domain.Users
+import com.example.homebookshelfapi.domain.User
 import com.example.homebookshelfapi.repositories.UserRepository
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class UsersService(private val userRepository: UserRepository) {
-    fun getAllUsers(): List<Users>
+    fun getAllUsers(): List<User>
     {
         return userRepository.findAll()
     }
 
-    fun getUserById(id: UUID): Users?
+    fun getUserById(id: UUID): User?
     {
         return userRepository.findById(id).orElse(null)
     }
 
-    fun addUser(users: Users): Users
+    fun addUser(user: User): User
     {
-        return userRepository.save(users)
+        return userRepository.save(user)
     }
 
-    fun updateUser(id: UUID, updatedUsers: Users): Users?
+    fun updateUser(id: UUID, updatedUser: User): User?
     {
         return if (userRepository.existsById(id))
         {
-            userRepository.save(updatedUsers.copy(id = id))
+            userRepository.save(updatedUser.copy(id = id))
         }
         else
         {

@@ -19,12 +19,15 @@ import java.time.LocalDate
 @SpringBootTest(properties = ["spring.profiles.active=test"])
 @AutoConfigureMockMvc
 @Transactional
-class BookControllerIntegrationTest {
+class BookApiIntegrationTests {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
     private lateinit var bookJson: String
+
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setup() {
@@ -38,7 +41,7 @@ class BookControllerIntegrationTest {
             pageCount = 310,
             thumbnail = "some_thumbnail_url"
         )
-        bookJson = ObjectMapper().writeValueAsString(book)
+        bookJson = objectMapper.writeValueAsString(book)
     }
 
     @Test
@@ -115,7 +118,7 @@ class BookControllerIntegrationTest {
             pageCount = 310,
             thumbnail = "some_thumbnail_url"
         )
-        val updatedBookJson = ObjectMapper().writeValueAsString(updatedBook)
+        val updatedBookJson = objectMapper.writeValueAsString(updatedBook)
 
         mockMvc.perform(
             put("/api/books/$bookId")

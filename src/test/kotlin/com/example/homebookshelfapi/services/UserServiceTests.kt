@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.services
 
-import com.example.homebookshelfapi.domain.Users
+import com.example.homebookshelfapi.domain.User
 import com.example.homebookshelfapi.repositories.UserRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -12,7 +12,7 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class UsersServiceTests {
+class UserServiceTests {
 
     @Mock
     private lateinit var userRepository: UserRepository
@@ -20,7 +20,7 @@ class UsersServiceTests {
     @InjectMocks
     private lateinit var usersService: UsersService
 
-    private lateinit var users: Users
+    private lateinit var user: User
 
     private lateinit var id: UUID
 
@@ -28,12 +28,12 @@ class UsersServiceTests {
     fun setup() {
         id = UUID.randomUUID()
         MockitoAnnotations.openMocks(this)
-        users = Users(id = id, name = "Jake")
+        user = User(id = id, name = "Jake")
     }
 
     @Test
     fun getAllUsers_ShouldReturnAllUsers() {
-        `when`(userRepository.findAll()).thenReturn(listOf(users))
+        `when`(userRepository.findAll()).thenReturn(listOf(user))
         val users = usersService.getAllUsers()
         assertNotNull(users)
         assertEquals(1, users.size)
@@ -42,16 +42,16 @@ class UsersServiceTests {
 
     @Test
     fun getUserById_ShouldReturnUserWhenFound() {
-        `when`(userRepository.findById(users.id)).thenReturn(Optional.of(users))
-        val foundUser = usersService.getUserById(users.id)
+        `when`(userRepository.findById(user.id)).thenReturn(Optional.of(user))
+        val foundUser = usersService.getUserById(user.id)
         assertNotNull(foundUser)
         assertEquals("Jake", foundUser.name)
     }
 
     @Test
     fun addUser_ShouldReturnSavedUser() {
-        `when`(userRepository.save(users)).thenReturn(users)
-        val savedUser = usersService.addUser(users)
+        `when`(userRepository.save(user)).thenReturn(user)
+        val savedUser = usersService.addUser(user)
         assertNotNull(savedUser)
         assertEquals("Jake", savedUser.name)
     }
@@ -59,10 +59,10 @@ class UsersServiceTests {
 
     @Test
     fun updateUser_ShouldReturnUpdatedUser() {
-        val updatedUsers = Users(id = id, name = "Jake Smith")
+        val updatedUser = User(id = id, name = "Jake Smith")
         `when`(userRepository.existsById(id)).thenReturn(true)
-        `when`(userRepository.save(updatedUsers)).thenReturn(updatedUsers)
-        val user = usersService.updateUser(id, updatedUsers)
+        `when`(userRepository.save(updatedUser)).thenReturn(updatedUser)
+        val user = usersService.updateUser(id, updatedUser)
         assertNotNull(user)
         assertEquals("Jake Smith", user.name)
     }

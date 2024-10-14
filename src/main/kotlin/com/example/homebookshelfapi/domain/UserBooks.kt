@@ -4,15 +4,18 @@ import jakarta.persistence.*
 import java.util.*
 
 @Entity
-@Table(name = "users")
-data class Users(
+@Table(name = "user_books")
+data class UserBooks(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID = UUID.randomUUID(),
 
-    @Column(nullable = false)
-    val name: String,
+    @Column(name = "user_id", nullable = false)
+    val userId: UUID,
+
+    @Column(name = "book_id", nullable = false)
+    val bookId: UUID,
 
     @Column(nullable = false)
-    val createdAt: Date = Date()
+    val addedAt: Date = Date()
 )

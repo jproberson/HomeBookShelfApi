@@ -1,5 +1,6 @@
 package com.example.homebookshelfapi.controllers
 
+import com.example.homebookshelfapi.config.Constants.DEFAULT_USER_ID
 import com.example.homebookshelfapi.domain.Book
 import com.example.homebookshelfapi.services.BookService
 import org.springframework.http.HttpStatus
@@ -13,6 +14,9 @@ class BookController(private val bookService: BookService) {
 
     @GetMapping
     fun getAllBooks(): List<Book> = bookService.getAllBooks()
+
+    @GetMapping("/user/{userId}")
+    fun getAllBooksByUser(@PathVariable userId: UUID): List<Book> = bookService.getAllBooksByUserId(userId)
 
     @GetMapping("/{id}")
     fun getBookById(@PathVariable id: UUID): ResponseEntity<Book> {
@@ -42,7 +46,7 @@ class BookController(private val bookService: BookService) {
 
     @PostMapping("/isbn/{isbn}")
     fun addBookByIsbn(@PathVariable isbn: String): ResponseEntity<Book> {
-        val newBook = bookService.addBookByIsbn(isbn)
+        val newBook = bookService.addBookByIsbn(isbn, DEFAULT_USER_ID)
         return ResponseEntity.status(HttpStatus.CREATED).body(newBook)
     }
 
