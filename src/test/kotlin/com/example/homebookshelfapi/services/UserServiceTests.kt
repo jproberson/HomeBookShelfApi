@@ -3,22 +3,21 @@ package com.example.homebookshelfapi.services
 import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.repositories.UserRepository
 import com.example.homebookshelfapi.services.impl.UsersServiceImpl
+import io.mockk.*
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class UserEntityServiceTests {
 
-    @Mock
+    @MockK
     private lateinit var userRepository: UserRepository
 
-    @InjectMocks
+    @InjectMockKs
     private lateinit var usersService: UsersServiceImpl
 
     private lateinit var user: UserEntity
@@ -28,50 +27,72 @@ class UserEntityServiceTests {
     @BeforeEach
     fun setup() {
         id = UUID.randomUUID()
-        MockitoAnnotations.openMocks(this)
+        MockKAnnotations.init(this)
         user = UserEntity(id = id, name = "Jake")
     }
 
     @Test
     fun getAllUsers_ShouldReturnAllUsers() {
-        `when`(userRepository.findAll()).thenReturn(listOf(user))
+        every { userRepository.findAll() } returns listOf(user)
+
         val users = usersService.getAllUsers()
+
         assertNotNull(users)
         assertEquals(1, users.size)
         assertEquals("Jake", users[0].name)
+
+        verify { userRepository.findAll() }
     }
 
     @Test
     fun getUserById_ShouldReturnUserWhenFound() {
-        `when`(userRepository.findById(user.id)).thenReturn(Optional.of(user))
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+
         val foundUser = usersService.getUserById(user.id)
+
         assertNotNull(foundUser)
         assertEquals("Jake", foundUser.name)
+
+        verify { userRepository.findById(user.id) }
     }
 
     @Test
     fun addUser_ShouldReturnSavedUser() {
-        `when`(userRepository.save(user)).thenReturn(user)
+        every { userRepository.save(user) } returns user
+
         val savedUser = usersService.addUser(user)
+
         assertNotNull(savedUser)
         assertEquals("Jake", savedUser.name)
-    }
 
+        verify { userRepository.save(user) }
+    }
 
     @Test
     fun updateUser_ShouldReturnUpdatedUser() {
         val updatedUserEntity = UserEntity(id = id, name = "Jake Smith")
-        `when`(userRepository.existsById(id)).thenReturn(true)
-        `when`(userRepository.save(updatedUserEntity)).thenReturn(updatedUserEntity)
+
+        every { userRepository.existsById(id) } returns true
+        every { userRepository.save(updatedUserEntity) } returns updatedUserEntity
+
         val user = usersService.updateUser(id, updatedUserEntity)
+
         assertNotNull(user)
         assertEquals("Jake Smith", user.name)
+
+        verify { userRepository.existsById(id) }
+        verify { userRepository.save(updatedUserEntity) }
     }
 
     @Test
     fun deleteUser_ShouldReturnTrueWhenUserExists() {
-        `when`(userRepository.existsById(id)).thenReturn(true)
+        every { userRepository.existsById(id) } returns true
+        every { userRepository.deleteById(id) } just Runs
+
         val result = usersService.deleteUser(id)
+
         assertEquals(true, result)
+
+        verify { userRepository.existsById(id) }
     }
 }

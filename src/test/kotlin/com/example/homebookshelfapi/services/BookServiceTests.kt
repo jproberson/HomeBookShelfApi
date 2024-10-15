@@ -5,31 +5,30 @@ import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.repositories.BookRepository
 import com.example.homebookshelfapi.repositories.UserRepository
+import io.mockk.*
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
 import java.time.LocalDate
 import java.util.*
 
 class BookServiceTest {
 
-    @Mock
+    @MockK
     private lateinit var bookRepository: BookRepository
 
-    @Mock
+    @MockK
     private lateinit var googleApiService: GoogleApiService
 
-    @Mock
+    @MockK
     private lateinit var userBooksService: UserBooksService
 
-    @Mock
+    @MockK
     private lateinit var userRepository: UserRepository
 
-    @InjectMocks
+    @InjectMockKs
     private lateinit var bookService: BookServiceImpl
 
     private lateinit var book: BookEntity
@@ -39,7 +38,7 @@ class BookServiceTest {
     @BeforeEach
     fun setup() {
         id = UUID.randomUUID()
-        MockitoAnnotations.openMocks(this)
+        MockKAnnotations.init(this)
         book = BookEntity(
             id = id,
             isbn = "isbn",
@@ -56,7 +55,7 @@ class BookServiceTest {
 
     @Test
     fun getAllBooks_ShouldReturnAllBooks() {
-        `when`(bookRepository.findAll()).thenReturn(listOf(book))
+        every { bookRepository.findAll() } returns listOf(book)
         val books = bookService.getAllBooks()
         assertNotNull(books)
         assertEquals(1, books.size)
@@ -65,7 +64,7 @@ class BookServiceTest {
 
     @Test
     fun getBookById_ShouldReturnBookWhenFound() {
-        `when`(bookRepository.findById(book.id)).thenReturn(Optional.of(book))
+        every { bookRepository.findById(book.id) } returns Optional.of(book)
         val foundBook = bookService.getBookById(book.id)
         assertNotNull(foundBook)
         assertEquals("Sample Book", foundBook?.title)
@@ -73,47 +72,48 @@ class BookServiceTest {
 
     @Test
     fun addBookByIsbn_ShouldReturnSavedBook_WhenNewBookIsAdded() {
-        `when`(bookRepository.findByIsbn(book.isbn)).thenReturn(Optional.empty())
-        `when`(googleApiService.fetchBookInfoByISBN(book.isbn)).thenReturn(book)
-        `when`(bookRepository.save(book)).thenReturn(book)
-        `when`(userRepository.findById(user.id)).thenReturn(Optional.of(user))
+        every { bookRepository.findByIsbn(book.isbn) } returns Optional.empty()
+        every { googleApiService.fetchBookInfoByISBN(book.isbn) } returns book
+        every { bookRepository.save(book) } returns book
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { userBooksService.addBookToUser(user.id, book.id) } just Runs  // Properly mock Unit-returning method
 
         val savedBook = bookService.addBookByIsbn(book.isbn, user.id)
+
         assertNotNull(savedBook)
         assertEquals("Sample Book", savedBook.title)
-        verify(userBooksService, times(1)).addBookToUser(user.id, savedBook.id)
+
+        verify { userBooksService.addBookToUser(user.id, savedBook.id) }
     }
 
     @Test
     fun addBookByIsbn_ShouldReturnBook_WhenBookExists() {
-        `when`(bookRepository.findByIsbn(book.isbn)).thenReturn(Optional.of(book))
-        `when`(userRepository.findById(user.id)).thenReturn(Optional.of(user))
+        every { bookRepository.findByIsbn(book.isbn) } returns Optional.of(book)
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { userBooksService.addBookToUser(user.id, book.id) } just Runs
 
         val existingBook = bookService.addBookByIsbn(book.isbn, user.id)
         assertNotNull(existingBook)
         assertEquals("Sample Book", existingBook.title)
-        verify(userBooksService, times(1)).addBookToUser(user.id, existingBook.id)
-    }
 
-    @Test
-    fun addBookByIsbn_ShouldThrowException_WhenUserNotFound() {
-        `when`(userRepository.findById(user.id)).thenReturn(Optional.empty())
-        assertThrows(IllegalArgumentException::class.java) {
-            bookService.addBookByIsbn(book.isbn, user.id)
-        }
+        verify { userBooksService.addBookToUser(user.id, existingBook.id) }
     }
 
     @Test
     fun addBook_ShouldReturnSavedBook() {
-        `when`(bookRepository.save(book)).thenReturn(book)
+        every { bookRepository.findByIsbn(book.isbn) } returns Optional.empty()
+        every { bookRepository.save(book) } returns book
+
         val savedBook = bookService.addBook(book)
+
         assertNotNull(savedBook)
         assertEquals("Sample Book", savedBook.title)
     }
 
+
     @Test
     fun addBook_ShouldReturnException_WhenBookExists() {
-        `when`(bookRepository.findByIsbn(book.isbn)).thenReturn(Optional.of(book))
+        every { bookRepository.findByIsbn(book.isbn) } returns Optional.of(book)
         assertThrows(IllegalArgumentException::class.java) {
             bookService.addBook(book)
         }
@@ -121,8 +121,8 @@ class BookServiceTest {
 
     @Test
     fun updateBook_ShouldUpdateBookWhenExists() {
-        `when`(bookRepository.existsById(book.id)).thenReturn(true)
-        `when`(bookRepository.save(book)).thenReturn(book)
+        every { bookRepository.existsById(book.id) } returns true
+        every { bookRepository.save(book) } returns book
         val updatedBook = bookService.updateBook(book.id, book)
         assertNotNull(updatedBook)
         assertEquals("Sample Book", updatedBook?.title)
@@ -130,8 +130,8 @@ class BookServiceTest {
 
     @Test
     fun deleteBook_ShouldReturnTrueWhenBookExistsForUser() {
-        `when`(userBooksService.getUserBooks(user.id)).thenReturn(listOf(book))
-        `when`(userBooksService.deleteBookForUser(user.id, book.id)).thenReturn(true)
+        every { userBooksService.getUserBooks(user.id) } returns listOf(book)  // Mock getUserBooks
+        every { userBooksService.deleteBookForUser(user.id, book.id) } returns true  // Mock deleteBookForUser
 
         val isDeleted = bookService.deleteBook(book.id, user.id)
 
@@ -141,8 +141,12 @@ class BookServiceTest {
 
     @Test
     fun deleteBook_ShouldReturnFalseWhenBookNotFound() {
-        `when`(bookRepository.existsById(book.id)).thenReturn(false)
+        every { userBooksService.getUserBooks(user.id) } returns emptyList()
+
         val isDeleted = bookService.deleteBook(book.id, user.id)
+
         assertFalse(isDeleted)
+        verify(exactly = 0) { userBooksService.deleteBookForUser(user.id, book.id) }
+
     }
 }

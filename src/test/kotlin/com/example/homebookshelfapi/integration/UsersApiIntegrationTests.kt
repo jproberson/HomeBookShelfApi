@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@SpringBootTest(properties = ["spring.profiles.active=test"])
+@SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 class UsersApiIntegrationTest {

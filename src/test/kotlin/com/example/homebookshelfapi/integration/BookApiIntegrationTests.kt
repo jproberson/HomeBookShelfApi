@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 
-@SpringBootTest(properties = ["spring.profiles.active=test"])
+@SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 class BookApiIntegrationTests {
