@@ -8,6 +8,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.data.repository.findByIdOrNull
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -46,14 +47,14 @@ class UserEntityServiceTests {
 
     @Test
     fun getUserById_ShouldReturnUserWhenFound() {
-        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { userRepository.findByIdOrNull(user.id) } returns user
 
         val foundUser = usersService.getUserById(user.id)
 
         assertNotNull(foundUser)
         assertEquals("Jake", foundUser.name)
 
-        verify { userRepository.findById(user.id) }
+        verify { userRepository.findByIdOrNull(user.id) }
     }
 
     @Test
