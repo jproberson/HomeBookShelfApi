@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 
 @DataJpaTest
@@ -42,9 +43,9 @@ class BookEntityRepositoryTest {
     @Test
     fun findBookById_ShouldReturnBookWhenFound() {
         val savedBook = bookRepository.save(book)
-        val foundBook = bookRepository.findById(savedBook.id)
-        assertTrue(foundBook.isPresent)
-        assertEquals(savedBook.title, foundBook.get().title)
+        val foundBook = bookRepository.findByIdOrNull(savedBook.id)
+        assertTrue(foundBook != null)
+        assertEquals(savedBook.title, foundBook?.title)
     }
 
     @Test
@@ -66,7 +67,7 @@ class BookEntityRepositoryTest {
     fun deleteBook_ShouldRemoveBookById() {
         val savedBook = bookRepository.save(book)
         bookRepository.deleteById(savedBook.id)
-        val foundBook = bookRepository.findById(savedBook.id)
-        assertFalse(foundBook.isPresent)
+        val foundBook = bookRepository.findByIdOrNull(savedBook.id)
+        assertFalse(foundBook != null)
     }
 }

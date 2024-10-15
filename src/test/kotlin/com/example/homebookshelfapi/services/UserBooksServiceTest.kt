@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import java.util.*
 import kotlin.test.assertFalse
@@ -105,7 +106,7 @@ class UserEntityBooksServiceTest {
     @Test
     fun `addBookToUser should save a new UserBook when it does not exist`() {
         every { userBooksRepository.existsByUserIdAndBookId(user.id, book.id) } returns false
-        every { userBooksRepository.save(any<UserBooksEntity>()) } returns userBook // Mock the save behavior
+        every { userBooksRepository.save(any<UserBooksEntity>()) } returns userBook
 
         userBooksService.addBookToUser(user.id, book.id)
 

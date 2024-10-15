@@ -3,6 +3,7 @@ package com.example.homebookshelfapi.services
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.repositories.BookRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -22,7 +23,7 @@ class BookServiceImpl(
     }
 
     override fun getBookById(id: UUID): BookEntity? {
-        return bookRepository.findById(id).orElse(null)
+        return bookRepository.findByIdOrNull(id)
     }
 
     override fun getBookByIsbn(isbn: String): BookEntity? {

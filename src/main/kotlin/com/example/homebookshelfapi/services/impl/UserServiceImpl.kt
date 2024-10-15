@@ -3,6 +3,7 @@ package com.example.homebookshelfapi.services.impl
 import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.repositories.UserRepository
 import com.example.homebookshelfapi.services.UsersService
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -13,7 +14,7 @@ class UsersServiceImpl(private val userRepository: UserRepository) : UsersServic
     }
 
     override fun getUserById(id: UUID): UserEntity? {
-        return userRepository.findById(id).orElse(null)
+        return userRepository.findByIdOrNull(id)
     }
 
     override fun addUser(userEntity: UserEntity): UserEntity {

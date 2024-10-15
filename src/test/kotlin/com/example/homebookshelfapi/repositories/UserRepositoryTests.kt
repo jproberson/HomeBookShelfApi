@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.data.repository.findByIdOrNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -36,10 +37,10 @@ class UserEntityRepositoryTests {
     @Test
     fun findUserById_ShouldReturnUserWhenFound() {
         val savedUser = userRepository.save(user)
-        val foundUser = userRepository.findById(savedUser.id)
+        val foundUser = userRepository.findByIdOrNull(savedUser.id)
 
         assertNotNull(foundUser)
-        assertEquals(savedUser.name, foundUser.get().name)
+        assertEquals(savedUser.name, foundUser.name)
     }
 
     @Test

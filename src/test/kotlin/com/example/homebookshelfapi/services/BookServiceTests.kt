@@ -11,6 +11,7 @@ import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import java.util.*
 
@@ -64,7 +65,7 @@ class BookServiceTest {
 
     @Test
     fun getBookById_ShouldReturnBookWhenFound() {
-        every { bookRepository.findById(book.id) } returns Optional.of(book)
+        every { bookRepository.findByIdOrNull(book.id) } returns book
         val foundBook = bookService.getBookById(book.id)
         assertNotNull(foundBook)
         assertEquals("Sample Book", foundBook?.title)
@@ -75,8 +76,8 @@ class BookServiceTest {
         every { bookRepository.findByIsbn(book.isbn) } returns Optional.empty()
         every { googleApiService.fetchBookInfoByISBN(book.isbn) } returns book
         every { bookRepository.save(book) } returns book
-        every { userRepository.findById(user.id) } returns Optional.of(user)
-        every { userBooksService.addBookToUser(user.id, book.id) } just Runs  // Properly mock Unit-returning method
+        every { userRepository.findByIdOrNull(user.id) } returns user
+        every { userBooksService.addBookToUser(user.id, book.id) } just Runs
 
         val savedBook = bookService.addBookByIsbn(book.isbn, user.id)
 
@@ -89,7 +90,7 @@ class BookServiceTest {
     @Test
     fun addBookByIsbn_ShouldReturnBook_WhenBookExists() {
         every { bookRepository.findByIsbn(book.isbn) } returns Optional.of(book)
-        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { userRepository.findByIdOrNull(user.id) } returns user
         every { userBooksService.addBookToUser(user.id, book.id) } just Runs
 
         val existingBook = bookService.addBookByIsbn(book.isbn, user.id)
@@ -130,8 +131,8 @@ class BookServiceTest {
 
     @Test
     fun deleteBook_ShouldReturnTrueWhenBookExistsForUser() {
-        every { userBooksService.getUserBooks(user.id) } returns listOf(book)  // Mock getUserBooks
-        every { userBooksService.deleteBookForUser(user.id, book.id) } returns true  // Mock deleteBookForUser
+        every { userBooksService.getUserBooks(user.id) } returns listOf(book)
+        every { userBooksService.deleteBookForUser(user.id, book.id) } returns true
 
         val isDeleted = bookService.deleteBook(book.id, user.id)
 
