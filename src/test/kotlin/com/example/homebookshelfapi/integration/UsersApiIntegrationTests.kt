@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+private const val USERS_BASE_URL = "/v1/api/users"
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -34,8 +36,9 @@ class UsersApiIntegrationTest {
     @Test
     fun addUserShouldCreateUser() {
         mockMvc.perform(
-            post("/v1/api/users")
+            post(USERS_BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(userJson)
         )
             .andExpect(status().isCreated)
@@ -44,7 +47,7 @@ class UsersApiIntegrationTest {
 
     @Test
     fun getAllUsersShouldReturnAllUsers() {
-        mockMvc.perform(get("/v1/api/users"))
+        mockMvc.perform(get(USERS_BASE_URL))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$").isArray)
     }
@@ -52,8 +55,9 @@ class UsersApiIntegrationTest {
     @Test
     fun getUserByIdShouldReturnUser() {
         val result = mockMvc.perform(
-            post("/v1/api/users")
+            post(USERS_BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(userJson)
         )
             .andExpect(status().isCreated)
@@ -61,7 +65,7 @@ class UsersApiIntegrationTest {
 
         val id = JsonPath.read<String>(result.response.contentAsString, "$.id")
 
-        mockMvc.perform(get("/v1/api/users/$id"))
+        mockMvc.perform(get("$USERS_BASE_URL/$id"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name").value("Jake"))
     }
@@ -72,8 +76,9 @@ class UsersApiIntegrationTest {
         val updatedUserJson = ObjectMapper().writeValueAsString(updatedUserEntity)
 
         val result = mockMvc.perform(
-            post("/v1/api/users")
+            post(USERS_BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(userJson)
         )
             .andExpect(status().isCreated)
@@ -82,8 +87,9 @@ class UsersApiIntegrationTest {
         val id = JsonPath.read<String>(result.response.contentAsString, "$.id")
 
         mockMvc.perform(
-            put("/v1/api/users/$id")
+            put("$USERS_BASE_URL/$id")
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(updatedUserJson)
         )
             .andExpect(status().isOk)
@@ -93,8 +99,9 @@ class UsersApiIntegrationTest {
     @Test
     fun deleteUserShouldRemoveUser() {
         val result = mockMvc.perform(
-            post("/v1/api/users")
+            post(USERS_BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(userJson)
         )
             .andExpect(status().isCreated)
@@ -102,7 +109,7 @@ class UsersApiIntegrationTest {
 
         val id = JsonPath.read<String>(result.response.contentAsString, "$.id")
 
-        mockMvc.perform(delete("/v1/api/users/$id"))
+        mockMvc.perform(delete("$USERS_BASE_URL/$id"))
             .andExpect(status().isNoContent)
     }
 }
