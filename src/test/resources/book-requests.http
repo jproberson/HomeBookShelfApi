@@ -4,8 +4,14 @@ GET http://localhost:8080/v1/api/books
 ### GET ALL BOOKS BY USER
 GET http://localhost:8080/v1/api/books/user/00000000-0000-0000-0000-000000000001
 
-### ADD A BOOK BY ISBN
-POST http://localhost:8080/v1/api/books/isbn/9780618640157
+### ADD A BOOK BY ISBN 1
+POST http://localhost:8080/v1/api/books/isbn/0765365278
+
+### ADD A BOOK BY ISBN 2
+POST http://localhost:8080/v1/api/books/isbn/9780544003415
+
+### ADD A BOOK BY ISBN 3
+POST http://localhost:8080/v1/api/books/isbn/0062225677
 
 ### ADD A BOOK MANUALLY
 #POST http://localhost:8080/v1/api/books

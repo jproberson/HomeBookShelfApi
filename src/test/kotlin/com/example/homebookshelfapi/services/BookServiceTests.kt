@@ -72,14 +72,14 @@ class BookServiceTest {
     }
 
     @Test
-    fun addBookByIsbn_ShouldReturnSavedBook_WhenNewBookIsAdded() {
+    fun addBookToUserByIsbn_ShouldReturnSavedBook_WhenNewBookIsAdded() {
         every { bookRepository.findByIsbn(book.isbn) } returns Optional.empty()
         every { googleApiService.fetchBookInfoByISBN(book.isbn) } returns book
         every { bookRepository.save(book) } returns book
         every { userRepository.findByIdOrNull(user.id) } returns user
         every { userBooksService.addBookToUser(user.id, book.id) } just Runs
 
-        val savedBook = bookService.addBookByIsbn(book.isbn, user.id)
+        val savedBook = bookService.addBookToUserByIsbn(book.isbn, user.id)
 
         assertNotNull(savedBook)
         assertEquals("Sample Book", savedBook.title)
@@ -88,16 +88,37 @@ class BookServiceTest {
     }
 
     @Test
-    fun addBookByIsbn_ShouldReturnBook_WhenBookExists() {
+    fun addBookToUserByIsbn_ShouldReturnBook_WhenBookExists() {
         every { bookRepository.findByIsbn(book.isbn) } returns Optional.of(book)
         every { userRepository.findByIdOrNull(user.id) } returns user
         every { userBooksService.addBookToUser(user.id, book.id) } just Runs
 
-        val existingBook = bookService.addBookByIsbn(book.isbn, user.id)
+        val existingBook = bookService.addBookToUserByIsbn(book.isbn, user.id)
         assertNotNull(existingBook)
         assertEquals("Sample Book", existingBook.title)
 
         verify { userBooksService.addBookToUser(user.id, existingBook.id) }
+    }
+
+    @Test
+    fun addBookByIsbn_ShouldReturnSavedBook_WhenNewBookIsAdded() {
+        every { bookRepository.findByIsbn(book.isbn) } returns Optional.empty()
+        every { googleApiService.fetchBookInfoByISBN(book.isbn) } returns book
+        every { bookRepository.save(book) } returns book
+
+        val savedBook = bookService.addBookByIsbn(book.isbn)
+
+        assertNotNull(savedBook)
+        assertEquals("Sample Book", savedBook.title)
+    }
+
+    @Test
+    fun addBookByIsbn_ShouldReturnBook_WhenBookExists() {
+        every { bookRepository.findByIsbn(book.isbn) } returns Optional.of(book)
+
+        val existingBook = bookService.addBookByIsbn(book.isbn)
+        assertNotNull(existingBook)
+        assertEquals("Sample Book", existingBook.title)
     }
 
     @Test

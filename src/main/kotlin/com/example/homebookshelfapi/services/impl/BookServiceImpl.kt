@@ -38,7 +38,7 @@ class BookServiceImpl(
         return bookRepository.save(bookEntity)
     }
 
-    override fun addBookByIsbn(isbn: String, userId: UUID): BookEntity {
+    override fun addBookToUserByIsbn(isbn: String, userId: UUID): BookEntity {
 
         val existingBook = bookRepository.findByIsbn(isbn)
 
@@ -54,6 +54,18 @@ class BookServiceImpl(
         userBooksService.addBookToUser(userId, savedBook.id)
 
         return savedBook
+    }
+
+    override fun addBookByIsbn(isbn: String): BookEntity {
+        val existingBook = bookRepository.findByIsbn(isbn)
+
+        if (existingBook.isPresent) {
+            return existingBook.get()
+        }
+
+        val fetchedBook = googleApiService.fetchBookInfoByISBN(isbn) ?: throw IllegalArgumentException("Book not found")
+
+        return bookRepository.save(fetchedBook)
     }
 
     override fun updateBook(id: UUID, updatedBookEntity: BookEntity): BookEntity? {

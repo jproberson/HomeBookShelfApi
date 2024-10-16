@@ -15,7 +15,9 @@ interface BookService {
 
     fun addBook(bookEntity: BookEntity): BookEntity
 
-    fun addBookByIsbn(isbn: String, userId: UUID): BookEntity
+    fun addBookToUserByIsbn(isbn: String, userId: UUID): BookEntity
+
+    fun addBookByIsbn(isbn: String): BookEntity
 
     fun updateBook(id: UUID, updatedBookEntity: BookEntity): BookEntity?
 

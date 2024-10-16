@@ -15,5 +15,4 @@ interface UserBooksRepository : JpaRepository<UserBooksEntity, UUID> {
 
     @Query("SELECT b FROM BookEntity b JOIN UserBooksEntity ub ON b.id = ub.book.id WHERE ub.user.id = :userId")
     fun findBooksByUserId(userId: UUID): List<BookEntity>
-
 }

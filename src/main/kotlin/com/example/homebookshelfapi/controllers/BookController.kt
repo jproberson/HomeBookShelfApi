@@ -49,8 +49,8 @@ class BookController(private val bookService: BookService) {
     }
 
     @PostMapping("/isbn/{isbn}")
-    fun addBookByIsbn(@PathVariable isbn: String): ResponseEntity<BookDto> {
-        val newBook = bookService.addBookByIsbn(isbn, DEFAULT_USER_ID)
+    fun addBookToUserByIsbn(@PathVariable isbn: String): ResponseEntity<BookDto> {
+        val newBook = bookService.addBookToUserByIsbn(isbn, DEFAULT_USER_ID)
         return ResponseEntity.status(HttpStatus.CREATED).body(newBook.toBookDto())
     }
 
