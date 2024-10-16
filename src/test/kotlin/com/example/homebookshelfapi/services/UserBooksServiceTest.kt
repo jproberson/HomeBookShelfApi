@@ -5,6 +5,7 @@ import com.example.homebookshelfapi.domain.entities.UserBooksEntity
 import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.repositories.BookRepository
 import com.example.homebookshelfapi.repositories.UserBooksRepository
+import com.example.homebookshelfapi.repositories.UserRepository
 import com.example.homebookshelfapi.services.impl.UserBooksServiceImpl
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
@@ -13,8 +14,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import java.util.*
 import kotlin.test.assertFalse
@@ -27,6 +26,9 @@ class UserEntityBooksServiceTest {
 
     @MockK
     private lateinit var userBooksRepository: UserBooksRepository
+
+    @MockK
+    private lateinit var userRepository: UserRepository
 
     @InjectMockKs
     private lateinit var userBooksService: UserBooksServiceImpl
@@ -50,35 +52,27 @@ class UserEntityBooksServiceTest {
             pageCount = 100,
             thumbnail = "some_thumbnail_url"
         )
-        userBook = UserBooksEntity(userId = user.id, bookId = book.id)
+        userBook = UserBooksEntity(user = user, book = book)
     }
 
     @Test
     fun `getUserBooks should return list of books for a user`() {
-        every { userBooksRepository.findByUserId(user.id) } returns listOf(userBook)
-        every { bookRepository.findById(userBook.bookId) } returns Optional.of(book)
+        every { userBooksRepository.findBooksByUserId(user.id) } returns listOf(book)
 
         val userBooks = userBooksService.getUserBooks(user.id)
 
         assertNotNull(userBooks)
         assertTrue(userBooks.isNotEmpty())
         assertEquals("Sample Book", userBooks[0].title)
-        verify { userBooksRepository.findByUserId(user.id) }
-        verify { bookRepository.findById(userBook.bookId) }
+        verify { userBooksRepository.findBooksByUserId(user.id) }
     }
 
     @Test
-    fun `getUserBooks should throw exception when a book is not found`() {
-        every { userBooksRepository.findByUserId(user.id) } returns listOf(userBook)
-        every { bookRepository.findById(userBook.bookId) } returns Optional.empty()
+    fun `getUserBooks should empty list when a book is not found`() {
+        every { userBooksRepository.findBooksByUserId(user.id) } returns emptyList()
 
-        val exception = assertThrows<IllegalStateException> {
-            userBooksService.getUserBooks(user.id)
-        }
-
-        assertEquals("Book not found for id: ${userBook.bookId}", exception.message)
-        verify { userBooksRepository.findByUserId(user.id) }
-        verify { bookRepository.findById(userBook.bookId) }
+        val userBooks = userBooksService.getUserBooks(user.id)
+        assertTrue(userBooks.isEmpty())
     }
 
 
@@ -105,6 +99,8 @@ class UserEntityBooksServiceTest {
 
     @Test
     fun `addBookToUser should save a new UserBook when it does not exist`() {
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { bookRepository.findById(book.id) } returns Optional.of(book)
         every { userBooksRepository.existsByUserIdAndBookId(user.id, book.id) } returns false
         every { userBooksRepository.save(any<UserBooksEntity>()) } returns userBook
 

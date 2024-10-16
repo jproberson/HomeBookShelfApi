@@ -38,6 +38,7 @@ dependencies {
     testImplementation("com.h2database:h2")
     implementation("org.flywaydb:flyway-core:10.19.0")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:10.19.0")
+    implementation("me.paulschwarz:spring-dotenv:4.0.0")
 }
 
 kotlin {

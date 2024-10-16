@@ -41,7 +41,7 @@ class UserEntityBooksRepositoryTest {
                 thumbnail = "some_thumbnail_url"
             )
         )
-        userBook = UserBooksEntity(userId = user.id, bookId = book.id)
+        userBook = UserBooksEntity(user = user, book = book)
         userBooksRepository.save(userBook)
     }
 
@@ -81,6 +81,6 @@ class UserEntityBooksRepositoryTest {
         val userBooks = userBooksRepository.findByUserId(user.id)
         assertNotNull(userBooks)
         assertEquals(1, userBooks.size)
-        assertEquals(book.id, userBooks[0].bookId)
+        assertEquals(book.id, userBooks[0].book.id)
     }
 }

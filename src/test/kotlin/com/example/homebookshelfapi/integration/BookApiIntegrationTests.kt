@@ -10,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
+import java.util.*
 
 private const val BOOKS_BASE_URL = "/v1/api/books"
 
@@ -22,7 +24,6 @@ private const val BOOKS_BASE_URL = "/v1/api/books"
 @AutoConfigureMockMvc
 @Transactional
 class BookApiIntegrationTests {
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -31,8 +32,16 @@ class BookApiIntegrationTests {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
+    @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
+
     @BeforeEach
     fun setup() {
+        jdbcTemplate.update(
+            "INSERT INTO users (id, name, created_at) VALUES (?, ?, NOW()) ON CONFLICT DO NOTHING",
+            UUID.fromString("00000000-0000-0000-0000-000000000001"), "Default User"
+        )
+
         val bookEntity = BookEntity(
             isbn = "1234567890",
             title = "The Hobbit",
@@ -138,6 +147,7 @@ class BookApiIntegrationTests {
 
     @Test
     fun deleteBookShouldRemoveBook() {
+
         val result = mockMvc.perform(
             post(BOOKS_BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
