@@ -20,6 +20,7 @@ class GptRequestBuilderTests {
                     "role" to "user", "content" to """
                     I have the following books in my collection: book1, book2, book3.
                     Recommend 5 similar books and return only their ISBNs in a comma-separated format with no additional text.
+                    Do not provide any duplicates or books that are already in my collection.
                 """.trimIndent()
                 )
             )
@@ -37,6 +38,7 @@ class GptRequestBuilderTests {
         val expected = """
             I have the following books in my collection: book1, book2, book3.
             Recommend 5 similar books and return only their ISBNs in a comma-separated format with no additional text.
+            Do not provide any duplicates or books that are already in my collection.
         """.trimIndent()
         assertEquals(expected, result)
     }

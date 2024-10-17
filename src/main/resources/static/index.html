@@ -213,20 +213,22 @@
         });
     }
 
-    async function fetchRecommendations() {
-        const response = await fetch(`${apiBaseUrl}/recommend/${userId}`);
-        const {books, gptEnabled} = await response.json();
+    async function fetchRecommendations(fetchMore = false) {
+        const moreParam = fetchMore ? '?more=true' : '';
+        const response = await fetch(`${apiBaseUrl}/recommend/${userId}${moreParam}`);
+        const { books, gptAvailable } = await response.json();
 
         const statusMessage = document.getElementById('gpt-status-message');
 
-        if (!gptEnabled) {
+        if (!gptAvailable) {
             statusMessage.textContent = 'Recommendations service is currently unavailable.';
             document.getElementById('getRecommendationsBtn').disabled = true;
         } else {
             statusMessage.textContent = '';
-            renderRecommendations(books.body);
+            renderRecommendations(books);
         }
     }
+
 
     function renderRecommendations(recommendedBooks) {
         const recommendationList = document.getElementById('recommendation-list');
@@ -247,7 +249,7 @@
     }
 
     document.getElementById('getRecommendationsBtn').addEventListener('click', async () => {
-        await fetchRecommendations();
+        await fetchRecommendations(true);
     });
 
 

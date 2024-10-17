@@ -1,8 +1,8 @@
 package com.example.homebookshelfapi.services
 
-import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.domain.entities.UserEntity
+import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.repositories.BookRepository
 import com.example.homebookshelfapi.repositories.UserRepository
 import io.mockk.*
@@ -109,7 +109,7 @@ class BookServiceTest {
         val savedBook = bookService.addBookByIsbn(book.isbn)
 
         assertNotNull(savedBook)
-        assertEquals("Sample Book", savedBook.title)
+        assertEquals("Sample Book", savedBook?.title)
     }
 
     @Test
@@ -118,7 +118,7 @@ class BookServiceTest {
 
         val existingBook = bookService.addBookByIsbn(book.isbn)
         assertNotNull(existingBook)
-        assertEquals("Sample Book", existingBook.title)
+        assertEquals("Sample Book", existingBook?.title)
     }
 
     @Test

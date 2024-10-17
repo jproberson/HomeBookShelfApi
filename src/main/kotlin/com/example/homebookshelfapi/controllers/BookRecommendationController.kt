@@ -1,13 +1,9 @@
 package com.example.homebookshelfapi.controllers
 
-import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.external.gpt.GptService
 import com.example.homebookshelfapi.services.BookRecommendationService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
@@ -18,21 +14,20 @@ class RecommendationController(
 ) {
 
     @GetMapping("/{userId}")
-    fun getRecommendations(@PathVariable userId: UUID): ResponseEntity<Map<String, Any>> {
+    fun getRecommendations(
+        @PathVariable userId: UUID,
+        @RequestParam(required = false, defaultValue = "false") more: Boolean
+    ): ResponseEntity<Map<String, Any>> {
         val isGptAvailable = gptService.isAvailable()
-        val recommendations = bookRecommendationService.getRecommendations(userId)
+        val recommendations = if (more) {
+            bookRecommendationService.fetchMoreRecommendations(userId).body
+        } else {
+            bookRecommendationService.getRecommendations(userId).body
+        }
 
         return ResponseEntity.ok(
-            mapOf("books" to recommendations, "gptEnabled" to isGptAvailable)
+            mapOf("books" to (recommendations ?: emptyList()), "gptAvailable" to isGptAvailable)
         )
     }
 
-    @GetMapping("/{userId}/more")
-    fun getMoreRecommendations(@PathVariable userId: UUID): ResponseEntity<List<BookEntity>> {
-        val isGptAvailable = gptService.isAvailable()
-        if (!isGptAvailable) {
-            return ResponseEntity.badRequest().build()
-        }
-        return bookRecommendationService.fetchMoreRecommendations(userId)
-    }
 }

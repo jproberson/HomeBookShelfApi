@@ -59,7 +59,10 @@ class BookRecommendationServiceImpl(
                 logger.warn("User has insufficient books to generate recommendations")
                 return ResponseEntity.badRequest().body(emptyList())
             }
-            return fetchAndSaveRecommendations(user, userBooks.map { it.title })
+            val userBookTitles = userBooks.map { it.title }
+            val currentRecommendedBookTitles = existingRecommendations.map { it.book.title }
+            val combinedBooks = userBookTitles + currentRecommendedBookTitles
+            return fetchAndSaveRecommendations(user, combinedBooks)
         }
 
         return ResponseEntity.ok(existingRecommendations.map { it.book })

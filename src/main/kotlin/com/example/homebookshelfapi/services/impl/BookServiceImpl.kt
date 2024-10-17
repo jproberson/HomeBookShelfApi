@@ -3,6 +3,7 @@ package com.example.homebookshelfapi.services
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.repositories.BookRepository
+import com.example.homebookshelfapi.utils.logger
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -13,6 +14,8 @@ class BookServiceImpl(
     private val googleApiService: GoogleApiService,
     private val userBooksService: UserBooksService,
 ) : BookService {
+
+    private val logger = logger<BookServiceImpl>()
 
     override fun getAllBooks(): List<BookEntity> {
         return bookRepository.findAll()
@@ -56,15 +59,18 @@ class BookServiceImpl(
         return savedBook
     }
 
-    override fun addBookByIsbn(isbn: String): BookEntity {
+    override fun addBookByIsbn(isbn: String): BookEntity? {
         val existingBook = bookRepository.findByIsbn(isbn)
 
         if (existingBook.isPresent) {
             return existingBook.get()
         }
 
-        val fetchedBook = googleApiService.fetchBookInfoByISBN(isbn) ?: throw IllegalArgumentException("Book not found")
-
+        val fetchedBook = googleApiService.fetchBookInfoByISBN(isbn)
+        if (fetchedBook == null) {
+            logger.error("Book ${isbn} not found")
+            return null
+        }
         return bookRepository.save(fetchedBook)
     }
 

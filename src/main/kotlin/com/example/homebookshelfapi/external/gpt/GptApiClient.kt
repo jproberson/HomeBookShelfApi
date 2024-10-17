@@ -12,15 +12,15 @@ class GptApiClient(private val gptRestTemplate: RestTemplate?) {
         }
 
         return try {
-            gptRestTemplate.postForObject("/your-endpoint", payload, GptResponse::class.java)
+            val url = "https://api.openai.com/v1/chat/completions"
+            gptRestTemplate.postForObject(url, payload, GptResponse::class.java)
                 ?: throw IllegalStateException("No response from GPT API")
         } catch (e: HttpClientErrorException) {
             throw IllegalStateException("Error communicating with GPT API: ${e.message}")
         }
     }
+
     fun isGptRestTemplateAvailable(): Boolean {
         return gptRestTemplate != null
     }
 }
-
-
