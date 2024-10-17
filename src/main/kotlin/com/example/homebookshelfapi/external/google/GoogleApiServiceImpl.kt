@@ -3,11 +3,13 @@ package com.example.homebookshelfapi.external.google
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.external.ApiEndpoints
 import com.example.homebookshelfapi.utils.DateParserUtil
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import java.util.*
 
+@Profile("prod")
 @Service
 class GoogleApiServiceImpl(private val restTemplate: RestTemplate) : GoogleApiService {
 

@@ -23,11 +23,17 @@ class GptServiceTests {
     @Test
     fun `get book recommendation should return a list of ISBNs`() {
         val storedBooks = listOf("Book 1", "Book 2")
-        val requestPayload = mapOf("key" to "value")
+        val requestPayload = GptRequest(
+            model = "gpt-4o-mini",
+            messages = listOf(
+                GptMessage("system", "Provide a list of book ISBNs."),
+                GptMessage("user", "I have the following books in my collection: Book 1, Book 2.")
+            )
+        )
         val gptResponse = GptResponse(
             choices = listOf(
                 GptChoice(
-                    GptMessage("978-1234567890, 978-0987654321")
+                    GptMessage("assistant", "978-1234567890, 978-0987654321")
                 )
             )
         )
@@ -39,6 +45,7 @@ class GptServiceTests {
 
         assertNotNull(bookRecommendations)
     }
+
 
     @Test
     fun `get book recommendation should throw an error when given an empty list`() {

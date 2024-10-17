@@ -53,6 +53,7 @@ class BookRecommendationServiceTests {
         )
         every { bookService.addBookByIsbn(recommendedBooks[0].isbn) } returns testBookEntity(isbn = recommendedBooks[0].isbn)
         every { bookService.addBookByIsbn(recommendedBooks[1].isbn) } returns testBookEntity(isbn = recommendedBooks[1].isbn)
+        every { gptService.isAvailable() } returns true
 
         every { gptService.getBookRecommendations(any()) } returns
             ResponseEntity.ok(listOf(recommendedBooks[0].isbn, recommendedBooks[1].isbn))
@@ -62,9 +63,9 @@ class BookRecommendationServiceTests {
 
         val result = bookRecommendationService.fetchMoreRecommendations(user.id)
         assertEquals(200, result.statusCode.value())
-        assertEquals(2, result.body?.size)
-        assertEquals(recommendedBooks[0].isbn, result.body?.get(0)?.isbn)
-        assertEquals(recommendedBooks[1].isbn, result.body?.get(1)?.isbn)
+        assertEquals(2, result.body?.books?.size)
+        assertEquals(recommendedBooks[0].isbn, result.body?.books?.get(0)?.isbn)
+        assertEquals(recommendedBooks[1].isbn, result.body?.books?.get(1)?.isbn)
     }
 
     @Test
@@ -82,6 +83,7 @@ class BookRecommendationServiceTests {
         )
         every { bookService.addBookByIsbn(recommendedBooks[0].isbn) } returns testBookEntity(isbn = recommendedBooks[0].isbn)
         every { bookService.addBookByIsbn(recommendedBooks[1].isbn) } returns testBookEntity(isbn = recommendedBooks[1].isbn)
+        every { gptService.isAvailable() } returns true
 
         every { gptService.getBookRecommendations(any()) } returns
             ResponseEntity.ok(listOf(recommendedBooks[0].isbn, recommendedBooks[1].isbn))
@@ -90,10 +92,10 @@ class BookRecommendationServiceTests {
 
         val result = bookRecommendationService.fetchMoreRecommendations(user.id)
         assertEquals(200, result.statusCode.value())
-        assertEquals(3, result.body?.size)
-        assertEquals(existingRecommendations[0].book.isbn, result.body?.get(0)?.isbn)
-        assertEquals(recommendedBooks[0].isbn, result.body?.get(1)?.isbn)
-        assertEquals(recommendedBooks[1].isbn, result.body?.get(2)?.isbn)
+        assertEquals(3, result.body?.books?.size)
+        assertEquals(existingRecommendations[0].book.isbn, result.body?.books?.get(0)?.isbn)
+        assertEquals(recommendedBooks[0].isbn, result.body?.books?.get(1)?.isbn)
+        assertEquals(recommendedBooks[1].isbn, result.body?.books?.get(2)?.isbn)
     }
 
     @Test
@@ -101,6 +103,7 @@ class BookRecommendationServiceTests {
         val userId = testUserEntity().id
 
         every { userService.getUserById(userId) } returns null
+        every { gptService.isAvailable() } returns true
 
         val result = bookRecommendationService.fetchMoreRecommendations(userId)
         assertEquals(400, result.statusCode.value())
@@ -113,6 +116,7 @@ class BookRecommendationServiceTests {
         every { userService.getUserById(user.id) } returns user
         every { bookRecommendationRepository.findByUserId(user.id) } returns emptyList()
         every { userBooksService.getUserBooks(user.id) } returns emptyList()
+        every { gptService.isAvailable() } returns true
 
         val result = bookRecommendationService.fetchMoreRecommendations(user.id)
         assertEquals(400, result.statusCode.value())
@@ -125,11 +129,12 @@ class BookRecommendationServiceTests {
 
         every { userService.getUserById(user.id) } returns user
         every { bookRecommendationRepository.findByUserId(user.id) } returns existingRecommendations
+        every { gptService.isAvailable() } returns true
 
         val result = bookRecommendationService.getRecommendations(user.id, fetchMore = false)
         assertEquals(200, result.statusCode.value())
-        assertEquals(1, result.body?.size)
-        assertEquals(existingRecommendations[0].book.isbn, result.body?.get(0)?.isbn)
+        assertEquals(1, result.body?.books?.size)
+        assertEquals(existingRecommendations[0].book.isbn, result.body?.books?.get(0)?.isbn)
     }
 
     @Test
@@ -137,6 +142,7 @@ class BookRecommendationServiceTests {
         val userId = testUserEntity().id
 
         every { userService.getUserById(userId) } returns null
+        every { gptService.isAvailable() } returns true
 
         val result = bookRecommendationService.getRecommendations(userId, fetchMore = false)
 
@@ -147,11 +153,36 @@ class BookRecommendationServiceTests {
     fun `getRecommendations returns a bad request if user has insufficient books`() {
         val user = testUserEntity()
 
+        every { gptService.isAvailable() } returns true
         every { userService.getUserById(user.id) } returns user
         every { bookRecommendationRepository.findByUserId(user.id) } returns emptyList()
         every { userBooksService.getUserBooks(user.id) } returns emptyList()
 
         val result = bookRecommendationService.getRecommendations(user.id, fetchMore = false)
         assertEquals(400, result.statusCode.value())
+    }
+
+    @Test
+    fun `removeRecommendedBookForUser removes a recommended book for a user`() {
+        val user = testUserEntity()
+        val recommendedBook = testRecommendedBooksEntity()
+
+        every { bookRecommendationRepository.findByUserId(user.id) } returns listOf(recommendedBook)
+        every { bookRecommendationRepository.delete(recommendedBook) } returns Unit
+
+        val result = bookRecommendationService.removeRecommendedBookForUser(user.id, recommendedBook.book)
+        assertEquals(200, result.statusCode.value())
+        assertEquals(recommendedBook.book.isbn, result.body?.isbn)
+    }
+
+    @Test
+    fun `removeRecommendedBookForUser returns a not found status if book not found in recommendations`() {
+        val user = testUserEntity()
+        val recommendedBook = testRecommendedBooksEntity()
+
+        every { bookRecommendationRepository.findByUserId(user.id) } returns emptyList()
+
+        val result = bookRecommendationService.removeRecommendedBookForUser(user.id, recommendedBook.book)
+        assertEquals(404, result.statusCode.value())
     }
 }

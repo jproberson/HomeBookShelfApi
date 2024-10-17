@@ -2,6 +2,8 @@ package com.example.homebookshelfapi.controllers
 
 import com.example.homebookshelfapi.config.Constants.DEFAULT_USER_ID
 import com.example.homebookshelfapi.domain.dto.BookDto
+import com.example.homebookshelfapi.domain.dto.RecommendationResponse
+import com.example.homebookshelfapi.services.BookRecommendationService
 import com.example.homebookshelfapi.services.BookService
 import com.example.homebookshelfapi.toBookDto
 import com.example.homebookshelfapi.toBookEntity
@@ -12,7 +14,10 @@ import java.util.*
 
 @RestController
 @RequestMapping("/v1/api/books")
-class BookController(private val bookService: BookService) {
+class BookController(
+    private val bookService: BookService,
+    private val bookRecommendationService: BookRecommendationService,
+) {
 
     @GetMapping
     fun getAllBooks(): List<BookDto> = bookService.getAllBooks().map { it.toBookDto() }
@@ -51,6 +56,7 @@ class BookController(private val bookService: BookService) {
     @PostMapping("/isbn/{isbn}")
     fun addBookToUserByIsbn(@PathVariable isbn: String): ResponseEntity<BookDto> {
         val newBook = bookService.addBookToUserByIsbn(isbn, DEFAULT_USER_ID)
+        bookRecommendationService.removeRecommendedBookForUser(DEFAULT_USER_ID, newBook)
         return ResponseEntity.status(HttpStatus.CREATED).body(newBook.toBookDto())
     }
 
@@ -71,5 +77,19 @@ class BookController(private val bookService: BookService) {
         } else {
             ResponseEntity.notFound().build()
         }
+    }
+
+    @GetMapping("/recommendations/{userId}")
+    fun getRecommendations(
+        @PathVariable userId: UUID,
+        @RequestParam(required = false, defaultValue = "false") more: Boolean
+    ): ResponseEntity<RecommendationResponse> {
+        val recommendations = if (more) {
+            bookRecommendationService.fetchMoreRecommendations(userId).body
+        } else {
+            bookRecommendationService.getRecommendations(userId).body
+        }
+
+        return ResponseEntity.ok(recommendations)
     }
 }

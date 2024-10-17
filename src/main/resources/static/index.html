@@ -168,7 +168,7 @@
 </div>
 
 <script>
-    const apiBaseUrl = 'http://localhost:8080/v1/api';
+    const apiBaseUrl = 'http://localhost:8080/v1/api/books';
     const userId = "00000000-0000-0000-0000-000000000001";
 
     document.getElementById('addBookBtn').addEventListener('click', async () => {
@@ -179,7 +179,7 @@
     });
 
     async function addBook(isbn) {
-        const response = await fetch(`${apiBaseUrl}/books/isbn/${isbn}`, {
+        const response = await fetch(`${apiBaseUrl}/isbn/${isbn}`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({isbn})
@@ -193,7 +193,7 @@
     }
 
     async function loadBooks() {
-        const response = await fetch(`${apiBaseUrl}/books/user/${userId}`);
+        const response = await fetch(`${apiBaseUrl}/user/${userId}`);
         const books = await response.json();
         const bookList = document.getElementById('book-list');
         bookList.innerHTML = '';
@@ -215,7 +215,7 @@
 
     async function fetchRecommendations(fetchMore = false) {
         const moreParam = fetchMore ? '?more=true' : '';
-        const response = await fetch(`${apiBaseUrl}/recommend/${userId}${moreParam}`);
+        const response = await fetch(`${apiBaseUrl}/recommendations/${userId}${moreParam}`);
         const { books, gptAvailable } = await response.json();
 
         const statusMessage = document.getElementById('gpt-status-message');
@@ -254,7 +254,7 @@
 
 
     async function removeBook(bookId) {
-        const response = await fetch(`${apiBaseUrl}/books/${bookId}`, {method: 'DELETE'});
+        const response = await fetch(`${apiBaseUrl}/${bookId}`, {method: 'DELETE'});
         if (response.ok) {
             loadBooks();
         } else {

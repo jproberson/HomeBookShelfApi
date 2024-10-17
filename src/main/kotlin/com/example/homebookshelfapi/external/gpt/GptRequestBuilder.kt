@@ -4,13 +4,13 @@ import org.springframework.stereotype.Component
 
 @Component
 class GptRequestBuilder {
-    fun buildBookRecommendationsRequest(storedBooks: List<String>): Map<String, Any> {
+    fun buildBookRecommendationsRequest(storedBooks: List<String>): GptRequest {
         val prompt = buildPrompt(storedBooks)
-        return mapOf(
-            "model" to "gpt-4o-mini",
-            "messages" to listOf(
-                mapOf("role" to "system", "content" to "Provide a list of book ISBNs."),
-                mapOf("role" to "user", "content" to prompt)
+        return GptRequest(
+            model = "gpt-4o-mini",
+            messages = listOf(
+                GptMessage("system", "Provide a list of book ISBNs."),
+                GptMessage("user", prompt)
             )
         )
     }

@@ -6,7 +6,7 @@ import org.springframework.web.client.RestTemplate
 
 @Component
 class GptApiClient(private val gptRestTemplate: RestTemplate?) {
-    fun postGptRequest(payload: Map<String, Any>): GptResponse {
+    fun postGptRequest(payload: GptRequest): GptResponse {
         if (gptRestTemplate == null) {
             throw IllegalStateException("GPT_API_TOKEN is not configured.")
         }
