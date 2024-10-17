@@ -3,7 +3,6 @@ package com.example.homebookshelfapi
 import com.example.homebookshelfapi.domain.dto.BookDto
 import com.example.homebookshelfapi.domain.dto.UserDto
 import com.example.homebookshelfapi.domain.entities.BookEntity
-import com.example.homebookshelfapi.domain.entities.UserBooksEntity
 import com.example.homebookshelfapi.domain.entities.UserEntity
 
 fun BookEntity.toBookDto() = BookDto(

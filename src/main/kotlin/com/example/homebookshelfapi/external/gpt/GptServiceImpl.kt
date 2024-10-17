@@ -2,18 +2,19 @@ package com.example.homebookshelfapi.external.gpt
 
 import com.example.homebookshelfapi.exceptions.GptApiException
 import com.example.homebookshelfapi.utils.logger
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
 @Service
 class GptServiceImpl(
     private val gptApiClient: GptApiClient,
-    private val gptRequestBuilder: GptRequestBuilder
+    private val gptRequestBuilder: GptRequestBuilder,
 ) : GptService {
 
     private val logger = logger<GptService>()
 
-    override fun getBookRecommendations(storedBooks: List<String>): Mono<List<String>> {
+    override fun getBookRecommendations(storedBooks: List<String>): Mono<ResponseEntity<List<String>>> {
         if (storedBooks.isEmpty()) {
             logger.error("Empty list of storedBooks provided")
             return Mono.error(IllegalArgumentException("storedBooks cannot be empty"))
@@ -28,8 +29,13 @@ class GptServiceImpl(
             .map { response ->
                 val messageContent = response.choices.firstOrNull()?.message?.content
                     ?: throw GptApiException("No message content found in GPT response")
-                parseResponse(messageContent)
+                val recommendations = parseResponse(messageContent)
+                ResponseEntity.ok(recommendations)
             }
+    }
+
+    override fun isAvailable(): Boolean {
+        return gptApiClient.isGptWebClientAvailable()
     }
 
     internal fun parseResponse(response: String): List<String> {

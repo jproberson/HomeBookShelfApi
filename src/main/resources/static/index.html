@@ -7,28 +7,68 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            max-width: 600px;
-            margin: auto;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .main-content {
+            flex-grow: 2;
+            padding: 20px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-left: 1px solid #ddd;
+            border-radius: 0 8px 8px 0;
         }
 
         input, button {
             padding: 10px;
             margin: 10px 0;
-            width: 100%;
             box-sizing: border-box;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+
+        #addBookBtn, #getRecommendationsBtn {
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
         }
 
         #addBookBtn {
-            background-color: #4CAF50; /* Green color for Add button */
+            background-color: #4CAF50;
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            width: auto;
         }
 
         #addBookBtn:hover {
             background-color: #45a049;
+        }
+
+        #getRecommendationsBtn {
+            background-color: #007BFF;
+            color: white;
+            width: 100%;
+        }
+
+        #getRecommendationsBtn:hover {
+            background-color: #0056b3;
         }
 
         #book-list {
@@ -58,16 +98,18 @@
         .book-title {
             font-weight: bold;
             margin-bottom: 5px;
+            font-size: 16px;
         }
 
         .book-isbn {
             color: #555;
             margin-bottom: 10px;
+            font-size: 14px;
         }
 
         .remove-btn {
             padding: 5px 10px;
-            background-color: #f44336; /* Red color for Remove button */
+            background-color: #f44336;
             color: white;
             border: none;
             border-radius: 5px;
@@ -77,23 +119,57 @@
         .remove-btn:hover {
             background-color: #d32f2f;
         }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 8px;
+            background-color: #e9e9e9;
+            margin-bottom: 8px;
+            border-radius: 3px;
+        }
+
+        .recommendation-thumbnail {
+            width: 50px;
+            height: auto;
+            margin-right: 15px;
+        }
+
+        .recommendation-title {
+            font-size: 14px;
+        }
+
+        .recommendation-isbn {
+            color: #777;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
 
-<h1>My Book Library</h1>
+<div class="container">
+    <div class="main-content">
+        <h1>My Book Library</h1>
 
-<!-- Form to add a book by ISBN -->
-<label for="isbn">Enter ISBN:</label>
-<input type="text" id="isbn" placeholder="ISBN">
-<button id="addBookBtn">Add Book</button>
+        <label for="isbn">Enter ISBN:</label>
+        <input type="text" id="isbn" placeholder="ISBN">
+        <button id="addBookBtn">Add Book</button>
 
-<!-- List of books -->
-<h2>Book List</h2>
-<div id="book-list"></div>
+        <h2>Book List</h2>
+        <div id="book-list"></div>
+    </div>
+
+    <div class="sidebar">
+        <h2>Recommended Books</h2>
+        <div id="gpt-status-message" style="color: red; font-size: 14px;"></div>
+        <button id="getRecommendationsBtn">Get Recommendations</button>
+        <div id="recommendation-list"></div>
+    </div>
+</div>
 
 <script>
-    const apiBaseUrl = 'http://localhost:8080/v1/api/books';
+    const apiBaseUrl = 'http://localhost:8080/v1/api';
+    const userId = "00000000-0000-0000-0000-000000000001";
 
     document.getElementById('addBookBtn').addEventListener('click', async () => {
         const isbn = document.getElementById('isbn').value;
@@ -103,7 +179,7 @@
     });
 
     async function addBook(isbn) {
-        const response = await fetch(`${apiBaseUrl}/isbn/${isbn}`, {
+        const response = await fetch(`${apiBaseUrl}/books/isbn/${isbn}`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({isbn})
@@ -117,8 +193,7 @@
     }
 
     async function loadBooks() {
-        const userId = "00000000-0000-0000-0000-000000000001"; // TODO: Implement user
-        const response = await fetch(`${apiBaseUrl}/user/${userId}`);
+        const response = await fetch(`${apiBaseUrl}/books/user/${userId}`);
         const books = await response.json();
         const bookList = document.getElementById('book-list');
         bookList.innerHTML = '';
@@ -138,8 +213,46 @@
         });
     }
 
+    async function fetchRecommendations() {
+        const response = await fetch(`${apiBaseUrl}/recommend/${userId}`);
+        const {books, gptEnabled} = await response.json();
+
+        const statusMessage = document.getElementById('gpt-status-message');
+
+        if (!gptEnabled) {
+            statusMessage.textContent = 'Recommendations service is currently unavailable.';
+            document.getElementById('getRecommendationsBtn').disabled = true;
+        } else {
+            statusMessage.textContent = '';
+            renderRecommendations(books.body);
+        }
+    }
+
+    function renderRecommendations(recommendedBooks) {
+        const recommendationList = document.getElementById('recommendation-list');
+        recommendationList.innerHTML = '';
+
+        recommendedBooks.forEach(book => {
+            const bookItem = document.createElement('div');
+            bookItem.classList.add('recommendation-item');
+            bookItem.innerHTML = `
+            <img src="${book.thumbnail}" alt="${book.title} thumbnail" class="recommendation-thumbnail">
+            <div>
+                <div class="recommendation-title">${book.title}</div>
+                <div class="recommendation-isbn">ISBN: ${book.isbn}</div>
+            </div>
+        `;
+            recommendationList.appendChild(bookItem);
+        });
+    }
+
+    document.getElementById('getRecommendationsBtn').addEventListener('click', async () => {
+        await fetchRecommendations();
+    });
+
+
     async function removeBook(bookId) {
-        const response = await fetch(`${apiBaseUrl}/${bookId}`, {method: 'DELETE'});
+        const response = await fetch(`${apiBaseUrl}/books/${bookId}`, {method: 'DELETE'});
         if (response.ok) {
             loadBooks();
         } else {
@@ -147,7 +260,10 @@
         }
     }
 
-    window.onload = loadBooks;
+    window.onload = async () => {
+        await loadBooks();
+        await fetchRecommendations();
+    };
 </script>
 
 </body>

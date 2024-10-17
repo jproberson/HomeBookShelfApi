@@ -6,12 +6,13 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
-class WebClientConfig(
-    @Value("\${gpt.api-token}") private val apiToken: String
-) {
+class WebClientConfig(@Value("\${gpt.api-token}") private val apiToken: String) {
 
     @Bean
-    fun gptWebClient(): WebClient {
+    fun gptWebClient(): WebClient? {
+        if (apiToken == "default") {
+            return null
+        }
         return WebClient.builder()
             .baseUrl("https://api.openai.com/v1/chat/completions")
             .defaultHeader("Authorization", "Bearer $apiToken")

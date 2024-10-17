@@ -27,13 +27,13 @@ class BookApiIntegrationTests {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    private lateinit var bookJson: String
-
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
+
+    private lateinit var bookJson: String
 
     @BeforeEach
     fun setup() {

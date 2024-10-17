@@ -19,6 +19,7 @@ class GptRequestBuilder {
         return """
             I have the following books in my collection: ${storedBooks.joinToString(", ")}.
             Recommend 5 similar books and return only their ISBNs in a comma-separated format with no additional text.
+            Do not provide any duplicates or books that are already in my collection.
         """.trimIndent()
     }
 }

@@ -39,6 +39,10 @@ dependencies {
     implementation("org.flywaydb:flyway-core:10.19.0")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:10.19.0")
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
+    implementation("io.github.serpro69:kotlin-faker:2.0.0-rc.6")
+    implementation("io.github.serpro69:kotlin-faker-books:2.0.0-rc.4")
+    implementation("io.github.serpro69:kotlin-faker-commerce:2.0.0-rc.4")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
 }
 
 kotlin {
