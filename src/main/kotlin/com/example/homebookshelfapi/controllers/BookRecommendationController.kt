@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import reactor.core.publisher.Mono
 import java.util.*
 
 @RestController
@@ -19,24 +18,21 @@ class RecommendationController(
 ) {
 
     @GetMapping("/{userId}")
-    fun getRecommendations(@PathVariable userId: UUID): Mono<ResponseEntity<Map<String, Any>>> {
+    fun getRecommendations(@PathVariable userId: UUID): ResponseEntity<Map<String, Any>> {
         val isGptAvailable = gptService.isAvailable()
+        val recommendations = bookRecommendationService.getRecommendations(userId)
 
-        return bookRecommendationService.getRecommendations(userId)
-            .map { bookList ->
-                ResponseEntity.ok(
-                    mapOf("books" to bookList, "gptEnabled" to isGptAvailable)
-                )
-            }
+        return ResponseEntity.ok(
+            mapOf("books" to recommendations, "gptEnabled" to isGptAvailable)
+        )
     }
 
     @GetMapping("/{userId}/more")
-    fun getMoreRecommendations(@PathVariable userId: UUID): Mono<ResponseEntity<List<BookEntity>>> {
+    fun getMoreRecommendations(@PathVariable userId: UUID): ResponseEntity<List<BookEntity>> {
         val isGptAvailable = gptService.isAvailable()
         if (!isGptAvailable) {
-            return Mono.just(ResponseEntity.badRequest().build())
+            return ResponseEntity.badRequest().build()
         }
         return bookRecommendationService.fetchMoreRecommendations(userId)
     }
 }
-

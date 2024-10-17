@@ -6,7 +6,6 @@ import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import reactor.core.publisher.Mono
 import kotlin.test.assertNotNull
 
 @ExtendWith(MockKExtension::class)
@@ -34,9 +33,9 @@ class GptServiceTests {
         )
 
         every { gptRequestBuilder.buildBookRecommendationsRequest(storedBooks) } returns requestPayload
-        every { gptApiClient.postGptRequest(requestPayload) } returns Mono.just(gptResponse)
+        every { gptApiClient.postGptRequest(requestPayload) } returns gptResponse
 
-        val bookRecommendations = gptServiceImpl.getBookRecommendations(storedBooks).block()
+        val bookRecommendations = gptServiceImpl.getBookRecommendations(storedBooks)
 
         assertNotNull(bookRecommendations)
     }
@@ -46,7 +45,7 @@ class GptServiceTests {
         val storedBooks = emptyList<String>()
 
         assertThrows<IllegalArgumentException> {
-            gptServiceImpl.getBookRecommendations(storedBooks).block()
+            gptServiceImpl.getBookRecommendations(storedBooks)
         }
     }
 }

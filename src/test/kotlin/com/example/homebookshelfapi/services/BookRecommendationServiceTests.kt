@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.ResponseEntity
-import reactor.core.publisher.Mono
 import testBookEntity
 import testRecommendedBooksEntity
 import testUserEntity
@@ -55,17 +54,17 @@ class BookRecommendationServiceTests {
         every { bookService.addBookByIsbn(recommendedBooks[0].isbn) } returns testBookEntity(isbn = recommendedBooks[0].isbn)
         every { bookService.addBookByIsbn(recommendedBooks[1].isbn) } returns testBookEntity(isbn = recommendedBooks[1].isbn)
 
-        every { gptService.getBookRecommendations(any()) } returns Mono.just(
+        every { gptService.getBookRecommendations(any()) } returns
             ResponseEntity.ok(listOf(recommendedBooks[0].isbn, recommendedBooks[1].isbn))
-        )
+
         every { bookRecommendationRepository.save(any()) } returns testRecommendedBooksEntity()
 
 
-        val result = bookRecommendationService.fetchMoreRecommendations(user.id).block()
-        assertEquals(200, result?.statusCode?.value())
-        assertEquals(2, result?.body?.size)
-        assertEquals(recommendedBooks[0].isbn, result?.body?.get(0)?.isbn)
-        assertEquals(recommendedBooks[1].isbn, result?.body?.get(1)?.isbn)
+        val result = bookRecommendationService.fetchMoreRecommendations(user.id)
+        assertEquals(200, result.statusCode.value())
+        assertEquals(2, result.body?.size)
+        assertEquals(recommendedBooks[0].isbn, result.body?.get(0)?.isbn)
+        assertEquals(recommendedBooks[1].isbn, result.body?.get(1)?.isbn)
     }
 
     @Test
@@ -84,17 +83,17 @@ class BookRecommendationServiceTests {
         every { bookService.addBookByIsbn(recommendedBooks[0].isbn) } returns testBookEntity(isbn = recommendedBooks[0].isbn)
         every { bookService.addBookByIsbn(recommendedBooks[1].isbn) } returns testBookEntity(isbn = recommendedBooks[1].isbn)
 
-        every { gptService.getBookRecommendations(any()) } returns Mono.just(
+        every { gptService.getBookRecommendations(any()) } returns
             ResponseEntity.ok(listOf(recommendedBooks[0].isbn, recommendedBooks[1].isbn))
-        )
+
         every { bookRecommendationRepository.save(any()) } returns testRecommendedBooksEntity()
 
-        val result = bookRecommendationService.fetchMoreRecommendations(user.id).block()
-        assertEquals(200, result?.statusCode?.value())
-        assertEquals(3, result?.body?.size)
-        assertEquals(existingRecommendations[0].book.isbn, result?.body?.get(0)?.isbn)
-        assertEquals(recommendedBooks[0].isbn, result?.body?.get(1)?.isbn)
-        assertEquals(recommendedBooks[1].isbn, result?.body?.get(2)?.isbn)
+        val result = bookRecommendationService.fetchMoreRecommendations(user.id)
+        assertEquals(200, result.statusCode.value())
+        assertEquals(3, result.body?.size)
+        assertEquals(existingRecommendations[0].book.isbn, result.body?.get(0)?.isbn)
+        assertEquals(recommendedBooks[0].isbn, result.body?.get(1)?.isbn)
+        assertEquals(recommendedBooks[1].isbn, result.body?.get(2)?.isbn)
     }
 
     @Test
@@ -103,8 +102,8 @@ class BookRecommendationServiceTests {
 
         every { userService.getUserById(userId) } returns null
 
-        val result = bookRecommendationService.fetchMoreRecommendations(userId).block()
-        assertEquals(400, result?.statusCode?.value())
+        val result = bookRecommendationService.fetchMoreRecommendations(userId)
+        assertEquals(400, result.statusCode.value())
     }
 
     @Test
@@ -115,8 +114,8 @@ class BookRecommendationServiceTests {
         every { bookRecommendationRepository.findByUserId(user.id) } returns emptyList()
         every { userBooksService.getUserBooks(user.id) } returns emptyList()
 
-        val result = bookRecommendationService.fetchMoreRecommendations(user.id).block()
-        assertEquals(400, result?.statusCode?.value())
+        val result = bookRecommendationService.fetchMoreRecommendations(user.id)
+        assertEquals(400, result.statusCode.value())
     }
 
     @Test
@@ -127,10 +126,10 @@ class BookRecommendationServiceTests {
         every { userService.getUserById(user.id) } returns user
         every { bookRecommendationRepository.findByUserId(user.id) } returns existingRecommendations
 
-        val result = bookRecommendationService.getRecommendations(user.id, fetchMore = false).block()
-        assertEquals(200, result?.statusCode?.value())
-        assertEquals(1, result?.body?.size)
-        assertEquals(existingRecommendations[0].book.isbn, result?.body?.get(0)?.isbn)
+        val result = bookRecommendationService.getRecommendations(user.id, fetchMore = false)
+        assertEquals(200, result.statusCode.value())
+        assertEquals(1, result.body?.size)
+        assertEquals(existingRecommendations[0].book.isbn, result.body?.get(0)?.isbn)
     }
 
     @Test
@@ -139,9 +138,9 @@ class BookRecommendationServiceTests {
 
         every { userService.getUserById(userId) } returns null
 
-        val result = bookRecommendationService.getRecommendations(userId, fetchMore = false).block()
+        val result = bookRecommendationService.getRecommendations(userId, fetchMore = false)
 
-        assertEquals(400, result?.statusCode?.value())
+        assertEquals(400, result.statusCode.value())
     }
 
     @Test
@@ -152,7 +151,7 @@ class BookRecommendationServiceTests {
         every { bookRecommendationRepository.findByUserId(user.id) } returns emptyList()
         every { userBooksService.getUserBooks(user.id) } returns emptyList()
 
-        val result = bookRecommendationService.getRecommendations(user.id, fetchMore = false).block()
-        assertEquals(400, result?.statusCode?.value())
+        val result = bookRecommendationService.getRecommendations(user.id, fetchMore = false)
+        assertEquals(400, result.statusCode.value())
     }
 }
