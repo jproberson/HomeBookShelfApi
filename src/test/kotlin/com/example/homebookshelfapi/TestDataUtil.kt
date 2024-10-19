@@ -1,7 +1,4 @@
-import com.example.homebookshelfapi.domain.entities.BookEntity
-import com.example.homebookshelfapi.domain.entities.RecommendedBooksEntity
-import com.example.homebookshelfapi.domain.entities.UserBooksEntity
-import com.example.homebookshelfapi.domain.entities.UserEntity
+import com.example.homebookshelfapi.domain.entities.*
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.books.BooksFaker
 import io.github.serpro69.kfaker.commerce.CommerceFaker
@@ -17,11 +14,17 @@ val DEFAULT_TEST_USER_ID: UUID = UUID.fromString("00000000-0000-0000-0000-000000
 
 fun testUserEntity(
     id: UUID? = null,
-    name: String = faker.name.name(),
-    createdAt: Date = Date()
+    username: String = faker.name.name(),
+    password: String = faker.crypto.md5(),
+    role: Role = Role.USER,
+    createdAt: Date = Date(),
+    updatedAt: Date = Date()
 ) = UserEntity(
     id = id ?: DEFAULT_TEST_USER_ID,
-    name = name,
+    username = username,
+    password = password,
+    role = role,
+    updatedAt = updatedAt,
     createdAt = createdAt
 )
 

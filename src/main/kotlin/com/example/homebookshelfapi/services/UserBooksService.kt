@@ -4,7 +4,7 @@ import com.example.homebookshelfapi.domain.entities.BookEntity
 import java.util.*
 
 interface UserBooksService {
-    fun getUserBooks(userId: UUID): List<BookEntity>
-    fun addBookToUser(userId: UUID, bookId: UUID)
-    fun deleteBookForUser(userId: UUID, bookId: UUID): Boolean
+    fun getUserBooks(username: String): List<BookEntity>
+    fun addBookToUser(username: String, bookId: UUID)
+    fun deleteBookForUser(username: String, bookId: UUID): Boolean
 }

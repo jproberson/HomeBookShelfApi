@@ -17,15 +17,18 @@ class UserBooksServiceImpl(
     private val userRepository: UserRepository
 ) : UserBooksService {
 
-    override fun getUserBooks(userId: UUID): List<BookEntity> {
-        return userBookRepository.findBooksByUserId(userId)
+    override fun getUserBooks(username: String): List<BookEntity> {
+        val user = userRepository.findByUsername(username)
+            ?: throw IllegalArgumentException("User with username $username not found.")
+
+        return userBookRepository.findBooksByUserId(user.id)
     }
 
-    override fun addBookToUser(userId: UUID, bookId: UUID) {
-        if (!userBookRepository.existsByUserIdAndBookId(userId, bookId)) {
-            val user = userRepository.findById(userId).orElseThrow {
-                IllegalArgumentException("User with ID $userId not found.")
-            }
+    override fun addBookToUser(username: String, bookId: UUID) {
+        val user = userRepository.findByUsername(username)
+            ?: throw IllegalArgumentException("User with username $username not found.")
+
+        if (!userBookRepository.existsByUserAndBookId(user, bookId)) {
             val book = bookRepository.findById(bookId).orElseThrow {
                 IllegalArgumentException("Book with ID $bookId not found.")
             }
@@ -36,9 +39,12 @@ class UserBooksServiceImpl(
     }
 
     @Transactional
-    override fun deleteBookForUser(userId: UUID, bookId: UUID): Boolean {
-        return if (userBookRepository.existsByUserIdAndBookId(userId, bookId)) {
-            userBookRepository.deleteByUserIdAndBookId(userId, bookId)
+    override fun deleteBookForUser(username: String, bookId: UUID): Boolean {
+        val user = userRepository.findByUsername(username)
+            ?: throw IllegalArgumentException("User with username $username not found.")
+
+        return if (userBookRepository.existsByUserAndBookId(user, bookId)) {
+            userBookRepository.deleteByUserAndBookId(user, bookId)
             true
         } else {
             false

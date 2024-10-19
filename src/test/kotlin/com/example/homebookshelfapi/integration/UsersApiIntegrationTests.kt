@@ -1,6 +1,5 @@
 package com.example.homebookshelfapi.integration
 
-import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
 import jakarta.transaction.Transactional
@@ -14,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import testUserEntity
 
 private const val USERS_BASE_URL = "/v1/api/users"
 
@@ -29,7 +29,7 @@ class UsersApiIntegrationTest {
 
     @BeforeEach
     fun setup() {
-        val user = UserEntity(name = "Jake")
+        val user = testUserEntity()
         userJson = ObjectMapper().writeValueAsString(user)
     }
 
@@ -68,32 +68,6 @@ class UsersApiIntegrationTest {
         mockMvc.perform(get("$USERS_BASE_URL/$id"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name").value("Jake"))
-    }
-
-    @Test
-    fun updateUserShouldReturnUpdatedUser() {
-        val updatedUserEntity = UserEntity(name = "Jake Smith")
-        val updatedUserJson = ObjectMapper().writeValueAsString(updatedUserEntity)
-
-        val result = mockMvc.perform(
-            post(USERS_BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(userJson)
-        )
-            .andExpect(status().isCreated)
-            .andReturn()
-
-        val id = JsonPath.read<String>(result.response.contentAsString, "$.id")
-
-        mockMvc.perform(
-            put("$USERS_BASE_URL/$id")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(updatedUserJson)
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.name").value("Jake Smith"))
     }
 
     @Test

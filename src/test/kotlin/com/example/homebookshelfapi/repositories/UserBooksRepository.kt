@@ -1,8 +1,8 @@
 package com.example.homebookshelfapi.repositories
 
 import com.example.homebookshelfapi.domain.entities.BookEntity
-import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.domain.entities.UserBooksEntity
+import com.example.homebookshelfapi.domain.entities.UserEntity
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,7 +28,7 @@ class UserEntityBooksRepositoryTest {
 
     @BeforeEach
     fun setup() {
-        user = userRepository.save(UserEntity(name = "Test User"))
+        user = userRepository.save(UserEntity(username = "Test User", password = "password"))
         book = bookRepository.save(
             BookEntity(
                 isbn = "1234567890",
@@ -46,13 +46,13 @@ class UserEntityBooksRepositoryTest {
     }
 
     @Test
-    fun `existsByUserIdAndBookId should return true when a UserBook exists`() {
-        val exists = userBooksRepository.existsByUserIdAndBookId(user.id, book.id)
+    fun `existsByUserAndBookId should return true when a UserBook exists`() {
+        val exists = userBooksRepository.existsByUserAndBookId(user, book.id)
         assertTrue(exists)
     }
 
     @Test
-    fun `existsByUserIdAndBookId should return false when a UserBook does not exist`() {
+    fun `existsByUserAndBookId should return false when a UserBook does not exist`() {
         val otherBookEntity = bookRepository.save(
             BookEntity(
                 isbn = "0987654321",
@@ -65,22 +65,22 @@ class UserEntityBooksRepositoryTest {
                 thumbnail = "other_thumbnail_url"
             )
         )
-        val exists = userBooksRepository.existsByUserIdAndBookId(user.id, otherBookEntity.id)
+        val exists = userBooksRepository.existsByUserAndBookId(user, otherBookEntity.id)
         assertFalse(exists)
     }
 
     @Test
-    fun `deleteByUserIdAndBookId should delete UserBook`() {
-        userBooksRepository.deleteByUserIdAndBookId(user.id, book.id)
-        val exists = userBooksRepository.existsByUserIdAndBookId(user.id, book.id)
+    fun `deleteByUserAndBookId should delete UserBook`() {
+        userBooksRepository.deleteByUserAndBookId(user, book.id)
+        val exists = userBooksRepository.existsByUserAndBookId(user, book.id)
         assertFalse(exists)
     }
 
     @Test
     fun `findByUserId should return UserBooks for a specific user`() {
-        val userBooks = userBooksRepository.findByUserId(user.id)
+        val userBooks = userBooksRepository.findBooksByUserId(user.id)
         assertNotNull(userBooks)
         assertEquals(1, userBooks.size)
-        assertEquals(book.id, userBooks[0].book.id)
+        assertEquals(book.id, userBooks[0].id)
     }
 }

@@ -41,15 +41,15 @@ class BookRecommendationRepositoryTest {
 
     @Test
     fun `findByUserId returns recommendations for given user`() {
-        val recommendations = bookRecommendationRepository.findByUserId(user.id)
+        val recommendations = bookRecommendationRepository.findByUser(user)
         assertEquals(1, recommendations.size)
         assertEquals(user.id, recommendations.first().user.id)
     }
 
     @Test
     fun `findByUserId returns empty when no recommendations`() {
-        val newUser = userRepository.save(UserEntity(name = "New User"))
-        val recommendations = bookRecommendationRepository.findByUserId(newUser.id)
+        val newUser = userRepository.save(UserEntity(username = "New User", password = "password"))
+        val recommendations = bookRecommendationRepository.findByUser(newUser)
         assertTrue(recommendations.isEmpty())
     }
 
@@ -59,7 +59,7 @@ class BookRecommendationRepositoryTest {
             bookRepository.save(testRecommendedBooksEntity().book)
         bookRecommendationRepository.save(testRecommendedBooksEntity(book = anotherBook, user = user))
 
-        val recommendations = bookRecommendationRepository.findByUserId(user.id)
+        val recommendations = bookRecommendationRepository.findByUser(user)
         assertEquals(2, recommendations.size)
     }
 }

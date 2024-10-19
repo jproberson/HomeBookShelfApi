@@ -1,5 +1,6 @@
 package com.example.homebookshelfapi.services
 
+import com.example.homebookshelfapi.domain.entities.Role
 import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.repositories.UserRepository
 import com.example.homebookshelfapi.services.impl.UsersServiceImpl
@@ -8,7 +9,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.crypto.password.PasswordEncoder
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -17,6 +18,9 @@ class UserEntityServiceTests {
 
     @MockK
     private lateinit var userRepository: UserRepository
+
+    @MockK
+    private lateinit var encoder: PasswordEncoder
 
     @InjectMockKs
     private lateinit var usersService: UsersServiceImpl
@@ -29,7 +33,7 @@ class UserEntityServiceTests {
     fun setup() {
         id = UUID.randomUUID()
         MockKAnnotations.init(this)
-        user = UserEntity(id = id, name = "Jake")
+        user = UserEntity(id = id, username = "Jake", password = "password")
     }
 
     @Test
@@ -40,60 +44,61 @@ class UserEntityServiceTests {
 
         assertNotNull(users)
         assertEquals(1, users.size)
-        assertEquals("Jake", users[0].name)
+        assertEquals("Jake", users[0].username)
 
         verify { userRepository.findAll() }
     }
 
     @Test
-    fun getUserById_ShouldReturnUserWhenFound() {
-        every { userRepository.findByIdOrNull(user.id) } returns user
+    fun getByUsername_ShouldReturnUserWhenFound() {
+        every { userRepository.findByUsername(user.username) } returns user
 
-        val foundUser = usersService.getUserById(user.id)
+        val foundUser = usersService.getByUsername(user.username)
 
         assertNotNull(foundUser)
-        assertEquals("Jake", foundUser.name)
+        assertEquals("Jake", foundUser.username)
 
-        verify { userRepository.findByIdOrNull(user.id) }
+        verify { userRepository.findByUsername(user.username) }
     }
 
     @Test
     fun addUser_ShouldReturnSavedUser() {
-        every { userRepository.save(user) } returns user
+        every { encoder.encode(user.password) } returns "encodedPassword123"
+        every { userRepository.save(any()) } answers { firstArg() }
 
         val savedUser = usersService.addUser(user)
 
         assertNotNull(savedUser)
-        assertEquals("Jake", savedUser.name)
+        assertEquals("Jake", savedUser.username)
+        assertEquals("encodedPassword123", savedUser.password)
+        assertEquals(Role.USER, savedUser.role)
+        assertEquals(true, savedUser.enabled)
 
-        verify { userRepository.save(user) }
-    }
-
-    @Test
-    fun updateUser_ShouldReturnUpdatedUser() {
-        val updatedUserEntity = UserEntity(id = id, name = "Jake Smith")
-
-        every { userRepository.existsById(id) } returns true
-        every { userRepository.save(updatedUserEntity) } returns updatedUserEntity
-
-        val user = usersService.updateUser(id, updatedUserEntity)
-
-        assertNotNull(user)
-        assertEquals("Jake Smith", user.name)
-
-        verify { userRepository.existsById(id) }
-        verify { userRepository.save(updatedUserEntity) }
+        verify { encoder.encode(user.password) }
+        verify { userRepository.save(any()) }
     }
 
     @Test
     fun deleteUser_ShouldReturnTrueWhenUserExists() {
-        every { userRepository.existsById(id) } returns true
-        every { userRepository.deleteById(id) } just Runs
+        every { userRepository.findByUsername(user.username) } returns user
+        every { userRepository.deleteByUsername(user.username) } just Runs
 
-        val result = usersService.deleteUser(id)
+        val result = usersService.deleteUser(user.username)
 
         assertEquals(true, result)
+        verify { userRepository.findByUsername(user.username) }
+        verify { userRepository.deleteByUsername(user.username) }
+    }
 
-        verify { userRepository.existsById(id) }
+    @Test
+    fun deleteUser_ShouldReturnFalseWhenUserDoesNotExist() {
+        every { userRepository.findByUsername(user.username) } returns null
+
+        val result = usersService.deleteUser(user.username)
+
+        assertEquals(false, result)
+
+        verify { userRepository.findByUsername(user.username) }
+        verify(exactly = 0) { userRepository.deleteByUsername(any()) }
     }
 }

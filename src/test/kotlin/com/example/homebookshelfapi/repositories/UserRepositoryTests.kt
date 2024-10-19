@@ -23,7 +23,7 @@ class UserEntityRepositoryTests {
 
     @BeforeEach
     fun setup() {
-        user = UserEntity(name = "Jake")
+        user = UserEntity(username = "Jake", password = "password")
     }
 
     @Test
@@ -31,7 +31,7 @@ class UserEntityRepositoryTests {
         val savedUser = userRepository.save(user)
 
         assertNotNull(savedUser.id)
-        assertEquals("Jake", savedUser.name)
+        assertEquals("Jake", savedUser.username)
     }
 
     @Test
@@ -40,7 +40,7 @@ class UserEntityRepositoryTests {
         val foundUser = userRepository.findByIdOrNull(savedUser.id)
 
         assertNotNull(foundUser)
-        assertEquals(savedUser.name, foundUser.name)
+        assertEquals(savedUser.username, foundUser.username)
     }
 
     @Test

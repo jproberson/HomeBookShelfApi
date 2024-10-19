@@ -3,35 +3,30 @@ package com.example.homebookshelfapi.services.impl
 import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.repositories.UserRepository
 import com.example.homebookshelfapi.services.UsersService
-import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
-class UsersServiceImpl(private val userRepository: UserRepository) : UsersService {
+class UsersServiceImpl(
+    private val userRepository: UserRepository, private val encoder: PasswordEncoder
+) : UsersService {
     override fun getAllUsers(): List<UserEntity> {
         return userRepository.findAll()
     }
 
-    override fun getUserById(id: UUID): UserEntity? {
-        return userRepository.findByIdOrNull(id)
+    override fun getByUsername(username: String): UserEntity? {
+        return userRepository.findByUsername(username)
     }
 
     override fun addUser(userEntity: UserEntity): UserEntity {
-        return userRepository.save(userEntity)
+        val updated = userEntity.copy(password = encoder.encode(userEntity.password))
+        return userRepository.save(updated)
     }
 
-    override fun updateUser(id: UUID, updatedUserEntity: UserEntity): UserEntity? {
-        return if (userRepository.existsById(id)) {
-            userRepository.save(updatedUserEntity.copy(id = id))
-        } else {
-            null
-        }
-    }
-
-    override fun deleteUser(id: UUID): Boolean {
-        return if (userRepository.existsById(id)) {
-            userRepository.deleteById(id)
+    override fun deleteUser(username: String): Boolean {
+        val user = userRepository.findByUsername(username)
+        return if (user != null) {
+            userRepository.deleteByUsername(username)
             true
         } else {
             false

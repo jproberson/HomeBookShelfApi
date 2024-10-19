@@ -1,8 +1,10 @@
-package com.example.homebookshelfapi.services
+package com.example.homebookshelfapi.services.impl
 
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.repositories.BookRepository
+import com.example.homebookshelfapi.services.BookService
+import com.example.homebookshelfapi.services.UserBooksService
 import com.example.homebookshelfapi.utils.logger
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -21,8 +23,8 @@ class BookServiceImpl(
         return bookRepository.findAll()
     }
 
-    override fun getAllBooksByUserId(userId: UUID): List<BookEntity> {
-        return userBooksService.getUserBooks(userId)
+    override fun getAllBooksByUsername(username: String): List<BookEntity> {
+        return userBooksService.getUserBooks(username)
     }
 
     override fun getBookById(id: UUID): BookEntity? {
@@ -41,18 +43,18 @@ class BookServiceImpl(
         return bookRepository.save(bookEntity)
     }
 
-    override fun addBookToUserByIsbn(isbn: String, userId: UUID): BookEntity {
+    override fun addBookToUserByIsbn(isbn: String, username: String): BookEntity {
         val existingBook = bookRepository.findByIsbn(isbn)
 
         if (existingBook.isPresent) {
-            userBooksService.addBookToUser(userId, existingBook.get().id)
+            userBooksService.addBookToUser(username, existingBook.get().id)
             return existingBook.get()
         }
 
         val fetchedBook = googleApiService.fetchBookInfoByISBN(isbn) ?: throw IllegalArgumentException("Book not found")
         val savedBook = bookRepository.save(fetchedBook)
 
-        userBooksService.addBookToUser(userId, savedBook.id)
+        userBooksService.addBookToUser(username, savedBook.id)
 
         return savedBook
     }
@@ -80,11 +82,11 @@ class BookServiceImpl(
         }
     }
 
-    override fun deleteBook(bookId: UUID, userId: UUID): Boolean {
-        val userBooks = userBooksService.getUserBooks(userId)
+    override fun deleteBook(bookId: UUID, username: String): Boolean {
+        val userBooks = userBooksService.getUserBooks(username)
 
         return if (userBooks.any { it.id == bookId }) {
-            userBooksService.deleteBookForUser(userId, bookId)
+            userBooksService.deleteBookForUser(username, bookId)
             true
         } else {
             false

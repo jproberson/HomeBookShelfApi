@@ -7,7 +7,7 @@ interface BookService {
 
     fun getAllBooks(): List<BookEntity>
 
-    fun getAllBooksByUserId(userId: UUID): List<BookEntity>
+    fun getAllBooksByUsername(username: String): List<BookEntity>
 
     fun getBookById(id: UUID): BookEntity?
 
@@ -15,11 +15,12 @@ interface BookService {
 
     fun addBook(bookEntity: BookEntity): BookEntity
 
-    fun addBookToUserByIsbn(isbn: String, userId: UUID): BookEntity
+    fun addBookToUserByIsbn(isbn: String, username: String): BookEntity
 
     fun addBookByIsbn(isbn: String): BookEntity?
 
+
     fun updateBook(id: UUID, updatedBookEntity: BookEntity): BookEntity?
 
-    fun deleteBook(bookId: UUID, userId: UUID): Boolean
+    fun deleteBook(bookId: UUID, username: String): Boolean
 }

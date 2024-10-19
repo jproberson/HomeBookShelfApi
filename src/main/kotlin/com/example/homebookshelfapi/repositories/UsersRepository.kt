@@ -7,4 +7,6 @@ import java.util.*
 
 @Repository
 interface UserRepository : JpaRepository<UserEntity, UUID> {
+    fun findByUsername(username: String): UserEntity?
+    fun deleteByUsername(username: String)
 }
