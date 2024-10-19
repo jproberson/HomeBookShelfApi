@@ -17,106 +17,107 @@ import org.springframework.stereotype.Service
 
 @Service
 class BookRecommendationServiceImpl(
-    private val userBooksService: UserBooksService,
-    private val userService: UsersService,
-    private val gptService: GptService,
-    private val bookService: BookService,
-    private val bookRecommendationRepository: BookRecommendationRepository
+  private val userBooksService: UserBooksService,
+  private val userService: UsersService,
+  private val gptService: GptService,
+  private val bookService: BookService,
+  private val bookRecommendationRepository: BookRecommendationRepository
 ) : BookRecommendationService {
 
-    private val logger = logger<BookRecommendationServiceImpl>()
+  private val logger = logger<BookRecommendationServiceImpl>()
 
-    fun isRecommendationsAvailable(): Boolean {
-        return gptService.isAvailable()
+  fun isRecommendationsAvailable(): Boolean {
+    return gptService.isAvailable()
+  }
+
+  override fun getRecommendationsForUser(
+    username: String,
+    fetchMore: Boolean
+  ): ResponseEntity<RecommendationResponse> {
+    val user = userService.getByUsername(username)
+    if (user == null) {
+      logger.error("User not found with id: $username when fetching recommendations")
+      return ResponseEntity.badRequest()
+        .body(RecommendationResponse(emptyList(), isRecommendationsAvailable()))
     }
 
-    override fun getRecommendationsForUser(
-        username: String,
-        fetchMore: Boolean
-    ): ResponseEntity<RecommendationResponse> {
-        val user = userService.getByUsername(username)
-        if (user == null) {
-            logger.error("User not found with id: $username when fetching recommendations")
-            return ResponseEntity.badRequest().body(RecommendationResponse(emptyList(), isRecommendationsAvailable()))
-        }
+    val existingRecommendations = bookRecommendationRepository.findByUser(user)
 
-        val existingRecommendations = bookRecommendationRepository.findByUser(user)
+    if (existingRecommendations.isEmpty() || fetchMore) {
+      val userBooks = userBooksService.getUserBooks(user.username)
+      if (userBooks.isEmpty() || userBooks.size < 3) {
+        logger.warn("User has insufficient books to generate recommendations")
+        return ResponseEntity.badRequest()
+          .body(RecommendationResponse(emptyList(), isRecommendationsAvailable()))
+      }
+      val combinedBooks =
+        (userBooks.map { it.title } + existingRecommendations.map { it.book.title }).distinct()
+      val newRecommendations = fetchAndSaveRecommendations(user, combinedBooks)
+      val combinedRecommendations =
+        (existingRecommendations.map { it.book } + newRecommendations).distinctBy { it.id }
 
-        if (existingRecommendations.isEmpty() || fetchMore) {
-            val userBooks = userBooksService.getUserBooks(user.username)
-            if (userBooks.isEmpty() || userBooks.size < 3) {
-                logger.warn("User has insufficient books to generate recommendations")
-                return ResponseEntity.badRequest()
-                    .body(RecommendationResponse(emptyList(), isRecommendationsAvailable()))
-            }
-            val combinedBooks = (userBooks.map { it.title } + existingRecommendations.map { it.book.title }).distinct()
-            val newRecommendations = fetchAndSaveRecommendations(user, combinedBooks)
-            val combinedRecommendations = (existingRecommendations.map { it.book } + newRecommendations).distinctBy { it.id }
-
-            return ResponseEntity.ok(RecommendationResponse(combinedRecommendations, isRecommendationsAvailable()))
-        }
-
-        return ResponseEntity.ok(
-            RecommendationResponse(
-                existingRecommendations.map { it.book },
-                isRecommendationsAvailable()
-            )
-        )
+      return ResponseEntity.ok(
+        RecommendationResponse(combinedRecommendations, isRecommendationsAvailable())
+      )
     }
 
-    private fun fetchAndSaveRecommendations(
-        user: UserEntity,
-        bookTitles: List<String>
-    ): List<BookEntity> {
-        println("Starting fetchAndSaveRecommendations for user: ${user.id}")
+    return ResponseEntity.ok(
+      RecommendationResponse(existingRecommendations.map { it.book }, isRecommendationsAvailable())
+    )
+  }
 
-        val recommendedIsbns = gptService.getBookRecommendations(bookTitles).body ?: emptyList()
-        logger.info("Received recommended ISBNS: $recommendedIsbns")
+  private fun fetchAndSaveRecommendations(
+    user: UserEntity,
+    bookTitles: List<String>
+  ): List<BookEntity> {
+    println("Starting fetchAndSaveRecommendations for user: ${user.id}")
 
-        val books = recommendedIsbns.mapNotNull { isbn ->
-            logger.info("Processing book with ISBN: $isbn")
-            bookService.addBookByIsbn(isbn)?.also {
-                println("Book found/added: ${it.id}")
-            }
-        }.filter { book ->
-            !bookTitles.contains(book.title)
-        }.map { book ->
-            saveRecommendation(user, book)
-            book
+    val recommendedIsbns = gptService.getBookRecommendations(bookTitles).body ?: emptyList()
+    logger.info("Received recommended ISBNS: $recommendedIsbns")
+
+    val books =
+      recommendedIsbns
+        .mapNotNull { isbn ->
+          logger.info("Processing book with ISBN: $isbn")
+          bookService.addBookByIsbn(isbn)?.also { println("Book found/added: ${it.id}") }
+        }
+        .filter { book -> !bookTitles.contains(book.title) }
+        .map { book ->
+          saveRecommendation(user, book)
+          book
         }
 
-        println("Finished processing books: ${books.map { it.id }}")
-        return books
+    println("Finished processing books: ${books.map { it.id }}")
+    return books
+  }
+
+  private fun saveRecommendation(user: UserEntity, book: BookEntity): RecommendedBooksEntity {
+    println("Saving recommendation for user: ${user.id}, book: ${book.id}")
+    return bookRecommendationRepository
+      .save(RecommendedBooksEntity(user = user, book = book, recommendationStrategy = "gpt"))
+      .also { println("Recommendation saved for book: ${book.id}") }
+  }
+
+  override fun removeRecommendedBookForUser(
+    username: String,
+    savedBook: BookEntity
+  ): ResponseEntity<BookEntity?> {
+    val user = userService.getByUsername(username)
+    if (user == null) {
+      logger.error("User not found with id: $username when fetching recommendations")
+      return ResponseEntity.badRequest().body(null)
     }
-
-    private fun saveRecommendation(user: UserEntity, book: BookEntity): RecommendedBooksEntity {
-        println("Saving recommendation for user: ${user.id}, book: ${book.id}")
-        return bookRecommendationRepository.save(
-            RecommendedBooksEntity(
-                user = user,
-                book = book,
-                recommendationStrategy = "gpt"
-            )
-        ).also {
-            println("Recommendation saved for book: ${book.id}")
-        }
+    val userRecommendations = bookRecommendationRepository.findByUser(user)
+    val recommendedBook = userRecommendations.firstOrNull { it.book.id == savedBook.id }
+    if (recommendedBook != null) {
+      bookRecommendationRepository.delete(recommendedBook)
+      logger.info("Removed recommended book: ${savedBook.title} for user: $username")
+      return ResponseEntity.ok(savedBook)
+    } else {
+      logger.warn(
+        "Book: ${savedBook.title} was not found in the recommendations for user: $username"
+      )
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
     }
-
-    override fun removeRecommendedBookForUser(username: String, savedBook: BookEntity): ResponseEntity<BookEntity?> {
-        val user = userService.getByUsername(username)
-        if (user == null) {
-            logger.error("User not found with id: $username when fetching recommendations")
-            return ResponseEntity.badRequest().body(null)
-        }
-        val userRecommendations = bookRecommendationRepository.findByUser(user)
-        val recommendedBook = userRecommendations.firstOrNull { it.book.id == savedBook.id }
-        if (recommendedBook != null) {
-            bookRecommendationRepository.delete(recommendedBook)
-            logger.info("Removed recommended book: ${savedBook.title} for user: $username")
-            return ResponseEntity.ok(savedBook)
-        } else {
-            logger.warn("Book: ${savedBook.title} was not found in the recommendations for user: $username")
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
-        }
-    }
+  }
 }

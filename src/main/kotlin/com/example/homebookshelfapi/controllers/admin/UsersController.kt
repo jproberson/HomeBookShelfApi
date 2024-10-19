@@ -10,35 +10,33 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-
 @RestController
 @RequestMapping("/v1/api/user")
 class UsersController(private val usersService: UsersService) {
-    @GetMapping
-    fun getAllUsers() = usersService.getAllUsers()
+  @GetMapping fun getAllUsers() = usersService.getAllUsers()
 
-    @GetMapping("/{username}")
-    fun getUserByUsername(@PathVariable username: String): ResponseEntity<UserEntity> {
-        val user = usersService.getByUsername(username)
-        return if (user != null) {
-            ResponseEntity.ok(user)
-        } else {
-            ResponseEntity.notFound().build()
-        }
+  @GetMapping("/{username}")
+  fun getUserByUsername(@PathVariable username: String): ResponseEntity<UserEntity> {
+    val user = usersService.getByUsername(username)
+    return if (user != null) {
+      ResponseEntity.ok(user)
+    } else {
+      ResponseEntity.notFound().build()
     }
+  }
 
-    @PostMapping
-    fun addUser(@RequestBody user: UserRequest): ResponseEntity<UserDto> {
-        val newUser = usersService.addUser(user.toUserEntity())
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser.toUserDto())
-    }
+  @PostMapping
+  fun addUser(@RequestBody user: UserRequest): ResponseEntity<UserDto> {
+    val newUser = usersService.addUser(user.toUserEntity())
+    return ResponseEntity.status(HttpStatus.CREATED).body(newUser.toUserDto())
+  }
 
-    @DeleteMapping("/{username}")
-    fun deleteUser(@PathVariable username: String): ResponseEntity<Void> {
-        return if (usersService.deleteUser(username)) {
-            ResponseEntity.noContent().build()
-        } else {
-            ResponseEntity.notFound().build()
-        }
+  @DeleteMapping("/{username}")
+  fun deleteUser(@PathVariable username: String): ResponseEntity<Void> {
+    return if (usersService.deleteUser(username)) {
+      ResponseEntity.noContent().build()
+    } else {
+      ResponseEntity.notFound().build()
     }
+  }
 }

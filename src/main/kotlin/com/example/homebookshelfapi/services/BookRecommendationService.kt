@@ -5,6 +5,13 @@ import com.example.homebookshelfapi.domain.entities.BookEntity
 import org.springframework.http.ResponseEntity
 
 interface BookRecommendationService {
-    fun getRecommendationsForUser(username: String, fetchMore: Boolean = false): ResponseEntity<RecommendationResponse>
-    fun removeRecommendedBookForUser(username: String, savedBook: BookEntity): ResponseEntity<BookEntity?>
+  fun getRecommendationsForUser(
+    username: String,
+    fetchMore: Boolean = false
+  ): ResponseEntity<RecommendationResponse>
+
+  fun removeRecommendedBookForUser(
+    username: String,
+    savedBook: BookEntity
+  ): ResponseEntity<BookEntity?>
 }

@@ -5,22 +5,21 @@ import java.util.*
 
 interface BookService {
 
-    fun getAllBooks(): List<BookEntity>
+  fun getAllBooks(): List<BookEntity>
 
-    fun getAllBooksByUsername(username: String): List<BookEntity>
+  fun getAllBooksByUsername(username: String): List<BookEntity>
 
-    fun getBookById(id: UUID): BookEntity?
+  fun getBookById(id: UUID): BookEntity?
 
-    fun getBookByIsbn(isbn: String): BookEntity?
+  fun getBookByIsbn(isbn: String): BookEntity?
 
-    fun addBook(bookEntity: BookEntity): BookEntity
+  fun addBook(bookEntity: BookEntity): BookEntity
 
-    fun addBookToUserByIsbn(isbn: String, username: String): BookEntity
+  fun addBookToUserByIsbn(isbn: String, username: String): BookEntity
 
-    fun addBookByIsbn(isbn: String): BookEntity?
+  fun addBookByIsbn(isbn: String): BookEntity?
 
+  fun updateBook(id: UUID, updatedBookEntity: BookEntity): BookEntity?
 
-    fun updateBook(id: UUID, updatedBookEntity: BookEntity): BookEntity?
-
-    fun deleteBook(bookId: UUID, username: String): Boolean
+  fun deleteBook(bookId: UUID, username: String): Boolean
 }

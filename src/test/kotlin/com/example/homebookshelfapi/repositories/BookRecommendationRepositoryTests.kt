@@ -13,53 +13,49 @@ import testRecommendedBooksEntity
 @DataJpaTest
 class BookRecommendationRepositoryTest {
 
-    @Autowired
-    lateinit var userRepository: UserRepository
+  @Autowired lateinit var userRepository: UserRepository
 
-    @Autowired
-    lateinit var bookRecommendationRepository: BookRecommendationRepository
+  @Autowired lateinit var bookRecommendationRepository: BookRecommendationRepository
 
-    @Autowired
-    lateinit var bookRepository: BookRepository
+  @Autowired lateinit var bookRepository: BookRepository
 
-    lateinit var user: UserEntity
+  lateinit var user: UserEntity
 
-    @BeforeEach
-    fun setup() {
-        val recommendedBook = testRecommendedBooksEntity()
-        user = userRepository.save(recommendedBook.user)
-        val savedBook = bookRepository.save(recommendedBook.book)
-        bookRecommendationRepository.save(testRecommendedBooksEntity(book = savedBook, user = user))
-    }
+  @BeforeEach
+  fun setup() {
+    val recommendedBook = testRecommendedBooksEntity()
+    user = userRepository.save(recommendedBook.user)
+    val savedBook = bookRepository.save(recommendedBook.book)
+    bookRecommendationRepository.save(testRecommendedBooksEntity(book = savedBook, user = user))
+  }
 
-    @AfterEach
-    fun tearDown() {
-        bookRecommendationRepository.deleteAll()
-        bookRepository.deleteAll()
-        userRepository.deleteAll()
-    }
+  @AfterEach
+  fun tearDown() {
+    bookRecommendationRepository.deleteAll()
+    bookRepository.deleteAll()
+    userRepository.deleteAll()
+  }
 
-    @Test
-    fun `findByUserId returns recommendations for given user`() {
-        val recommendations = bookRecommendationRepository.findByUser(user)
-        assertEquals(1, recommendations.size)
-        assertEquals(user.id, recommendations.first().user.id)
-    }
+  @Test
+  fun `findByUserId returns recommendations for given user`() {
+    val recommendations = bookRecommendationRepository.findByUser(user)
+    assertEquals(1, recommendations.size)
+    assertEquals(user.id, recommendations.first().user.id)
+  }
 
-    @Test
-    fun `findByUserId returns empty when no recommendations`() {
-        val newUser = userRepository.save(UserEntity(username = "New User", password = "password"))
-        val recommendations = bookRecommendationRepository.findByUser(newUser)
-        assertTrue(recommendations.isEmpty())
-    }
+  @Test
+  fun `findByUserId returns empty when no recommendations`() {
+    val newUser = userRepository.save(UserEntity(username = "New User", password = "password"))
+    val recommendations = bookRecommendationRepository.findByUser(newUser)
+    assertTrue(recommendations.isEmpty())
+  }
 
-    @Test
-    fun `multiple recommendations for the same user`() {
-        val anotherBook =
-            bookRepository.save(testRecommendedBooksEntity().book)
-        bookRecommendationRepository.save(testRecommendedBooksEntity(book = anotherBook, user = user))
+  @Test
+  fun `multiple recommendations for the same user`() {
+    val anotherBook = bookRepository.save(testRecommendedBooksEntity().book)
+    bookRecommendationRepository.save(testRecommendedBooksEntity(book = anotherBook, user = user))
 
-        val recommendations = bookRecommendationRepository.findByUser(user)
-        assertEquals(2, recommendations.size)
-    }
+    val recommendations = bookRecommendationRepository.findByUser(user)
+    assertEquals(2, recommendations.size)
+  }
 }

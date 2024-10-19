@@ -2,63 +2,61 @@ package com.example.homebookshelfapi.repositories
 
 import com.example.homebookshelfapi.domain.entities.UserEntity
 import jakarta.transaction.Transactional
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.data.repository.findByIdOrNull
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-
 
 @DataJpaTest
 @Transactional
 class UserEntityRepositoryTests {
-    // TODO: Switch to Test Containers?
+  // TODO: Switch to Test Containers?
 
-    @Autowired
-    private lateinit var userRepository: UserRepository
+  @Autowired private lateinit var userRepository: UserRepository
 
-    private lateinit var user: UserEntity
+  private lateinit var user: UserEntity
 
-    @BeforeEach
-    fun setup() {
-        user = UserEntity(username = "Jake", password = "password")
-    }
+  @BeforeEach
+  fun setup() {
+    user = UserEntity(username = "Jake", password = "password")
+  }
 
-    @Test
-    fun saveUser_ShouldSaveAndReturnUser() {
-        val savedUser = userRepository.save(user)
+  @Test
+  fun saveUser_ShouldSaveAndReturnUser() {
+    val savedUser = userRepository.save(user)
 
-        assertNotNull(savedUser.id)
-        assertEquals("Jake", savedUser.username)
-    }
+    assertNotNull(savedUser.id)
+    assertEquals("Jake", savedUser.username)
+  }
 
-    @Test
-    fun findUserById_ShouldReturnUserWhenFound() {
-        val savedUser = userRepository.save(user)
-        val foundUser = userRepository.findByIdOrNull(savedUser.id)
+  @Test
+  fun findUserById_ShouldReturnUserWhenFound() {
+    val savedUser = userRepository.save(user)
+    val foundUser = userRepository.findByIdOrNull(savedUser.id)
 
-        assertNotNull(foundUser)
-        assertEquals(savedUser.username, foundUser.username)
-    }
+    assertNotNull(foundUser)
+    assertEquals(savedUser.username, foundUser.username)
+  }
 
-    @Test
-    fun findAllUsers_ShouldReturnAllUsers() {
-        userRepository.save(user)
-        val users = userRepository.findAll()
+  @Test
+  fun findAllUsers_ShouldReturnAllUsers() {
+    userRepository.save(user)
+    val users = userRepository.findAll()
 
-        assertNotNull(users)
-        assertEquals(1, users.size)
-    }
+    assertNotNull(users)
+    assertEquals(1, users.size)
+  }
 
-    @Test
-    fun deleteUser_ShouldRemoveUserById() {
-        val savedUser = userRepository.save(user)
-        userRepository.deleteById(savedUser.id)
+  @Test
+  fun deleteUser_ShouldRemoveUserById() {
+    val savedUser = userRepository.save(user)
+    userRepository.deleteById(savedUser.id)
 
-        val users = userRepository.findAll()
+    val users = userRepository.findAll()
 
-        assertEquals(0, users.size)
-    }
+    assertEquals(0, users.size)
+  }
 }

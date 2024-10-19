@@ -4,10 +4,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class HomeBookEntityShelfApiApplicationTests {
+class ApplicationTests {
 
-	@Test
-	fun contextLoads() {
-	}
-
+  @Test fun contextLoads() {}
 }

@@ -9,45 +9,32 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
 data class AuthenticationRequest(
-    val username: String,
-    val password: String,
+  val username: String,
+  val password: String,
 )
 
 data class AuthenticationResponse(
-    val accessToken: String,
-    val refreshToken: String,
+  val accessToken: String,
+  val refreshToken: String,
 )
 
-data class RefreshTokenRequest(
-    val token: String
-)
+data class RefreshTokenRequest(val token: String)
 
-data class TokenResponse(
-    val token: String
-)
+data class TokenResponse(val token: String)
 
 @RestController
 @RequestMapping("/v1/api/auth")
 class AuthController(
-    private val authenticationService: AuthenticationService,
+  private val authenticationService: AuthenticationService,
 ) {
-    @PostMapping
-    fun authenticate(
-        @RequestBody authRequest: AuthenticationRequest
-    ): AuthenticationResponse =
-        authenticationService.authentication(authRequest)
+  @PostMapping
+  fun authenticate(@RequestBody authRequest: AuthenticationRequest): AuthenticationResponse =
+    authenticationService.authentication(authRequest)
 
-    @PostMapping("/refresh")
-    fun refreshAccessToken(
-        @RequestBody request: RefreshTokenRequest
-    ): TokenResponse =
-        authenticationService.refreshAccessToken(request.token)
-            ?.mapToTokenResponse()
-            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid refresh token.")
+  @PostMapping("/refresh")
+  fun refreshAccessToken(@RequestBody request: RefreshTokenRequest): TokenResponse =
+    authenticationService.refreshAccessToken(request.token)?.mapToTokenResponse()
+      ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid refresh token.")
 
-    private fun String.mapToTokenResponse(): TokenResponse =
-        TokenResponse(
-            token = this
-        )
-
+  private fun String.mapToTokenResponse(): TokenResponse = TokenResponse(token = this)
 }

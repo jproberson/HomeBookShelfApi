@@ -8,7 +8,8 @@ import com.example.homebookshelfapi.domain.entities.Role
 import com.example.homebookshelfapi.domain.entities.UserEntity
 import java.util.*
 
-fun BookEntity.toBookDto() = BookDto(
+fun BookEntity.toBookDto() =
+  BookDto(
     id = this.id,
     isbn = this.isbn,
     title = this.title,
@@ -18,9 +19,10 @@ fun BookEntity.toBookDto() = BookDto(
     publishedDate = this.publishedDate,
     pageCount = this.pageCount,
     thumbnail = this.thumbnail
-)
+  )
 
-fun BookDto.toBookEntity() = BookEntity(
+fun BookDto.toBookEntity() =
+  BookEntity(
     id = this.id,
     isbn = this.isbn,
     title = this.title,
@@ -30,9 +32,10 @@ fun BookDto.toBookEntity() = BookEntity(
     publishedDate = this.publishedDate,
     pageCount = this.pageCount,
     thumbnail = this.thumbnail
-)
+  )
 
-fun UserRequest.toUserEntity() = UserEntity(
+fun UserRequest.toUserEntity() =
+  UserEntity(
     id = UUID.randomUUID(),
     username = this.username,
     password = this.password,
@@ -40,9 +43,10 @@ fun UserRequest.toUserEntity() = UserEntity(
     role = Role.USER,
     createdAt = Date(),
     updatedAt = Date()
-)
+  )
 
-fun UserEntity.toUserDto() = UserDto(
+fun UserEntity.toUserDto() =
+  UserDto(
     id = this.id,
     username = this.username,
     password = this.password,
@@ -50,9 +54,10 @@ fun UserEntity.toUserDto() = UserDto(
     role = this.role,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt
-)
+  )
 
-fun UserDto.toUserEntity() = UserEntity(
+fun UserDto.toUserEntity() =
+  UserEntity(
     id = this.id,
     username = this.username,
     password = this.password,
@@ -60,4 +65,4 @@ fun UserDto.toUserEntity() = UserEntity(
     role = this.role,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt
-)
+  )
