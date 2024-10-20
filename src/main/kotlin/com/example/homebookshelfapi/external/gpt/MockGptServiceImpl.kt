@@ -22,7 +22,7 @@ class MockGptServiceImpl : GptService {
     }
 
     override fun isAvailable(): Boolean {
-        return true;
+        return true
     }
 
 }

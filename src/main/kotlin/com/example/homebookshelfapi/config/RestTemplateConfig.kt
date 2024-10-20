@@ -9,23 +9,23 @@ import org.springframework.web.client.RestTemplate
 @Configuration
 class RestTemplateConfig(@Value("\${gpt.api-token}") private val apiToken: String) {
 
-  @Bean
-  fun gptRestTemplate(): RestTemplate? {
-    if (apiToken == "default") {
-      return null
+    @Bean
+    fun gptRestTemplate(): RestTemplate? {
+        if (apiToken == "default") {
+            return null
+        }
+
+        val restTemplate = RestTemplate()
+        val interceptors = restTemplate.interceptors
+        interceptors.add(
+            ClientHttpRequestInterceptor { request, body, execution ->
+                request.headers.set("Authorization", "Bearer $apiToken")
+                request.headers.set("Content-Type", "application/json")
+                execution.execute(request, body)
+            }
+        )
+        restTemplate.interceptors = interceptors
+
+        return restTemplate
     }
-
-    val restTemplate = RestTemplate()
-    val interceptors = restTemplate.interceptors
-    interceptors.add(
-      ClientHttpRequestInterceptor { request, body, execution ->
-        request.headers.set("Authorization", "Bearer $apiToken")
-        request.headers.set("Content-Type", "application/json")
-        execution.execute(request, body)
-      }
-    )
-    restTemplate.interceptors = interceptors
-
-    return restTemplate
-  }
 }

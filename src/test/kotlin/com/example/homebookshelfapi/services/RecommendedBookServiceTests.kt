@@ -4,20 +4,20 @@ import com.example.homebookshelfapi.exceptions.UserNotFoundException
 import com.example.homebookshelfapi.external.gpt.GptService
 import com.example.homebookshelfapi.repositories.RecommendedBooksRepository
 import com.example.homebookshelfapi.services.impl.RecommendedRecommendedBookServiceImpl
+import generateBookEntity
+import generateRecommendedBooksEntity
+import generateUserEntity
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.http.ResponseEntity
-import generateBookEntity
-import generateRecommendedBooksEntity
-import generateUserEntity
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.assertThrows
+import org.springframework.http.ResponseEntity
 
 class RecommendedBookServiceTests {
     @MockK
@@ -113,7 +113,7 @@ class RecommendedBookServiceTests {
 
         val removedBook =
             bookRecommendationService.removeRecommendedBookForUser(user.username, recommendedBook.book)
-        assertNull(removedBook);
+        assertNull(removedBook)
     }
 
     @Test

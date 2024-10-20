@@ -18,20 +18,21 @@ import org.springframework.security.crypto.password.PasswordEncoder
 @EnableConfigurationProperties(JwtProperties::class)
 class Configuration {
 
-  @Bean
-  fun userDetailsService(userRepository: UserRepository): UserDetailsService =
-    CustomUserDetailsService(userRepository)
+    @Bean
+    fun userDetailsService(userRepository: UserRepository): UserDetailsService =
+        CustomUserDetailsService(userRepository)
 
-  @Bean fun encoder(): PasswordEncoder = BCryptPasswordEncoder()
+    @Bean
+    fun encoder(): PasswordEncoder = BCryptPasswordEncoder()
 
-  @Bean
-  fun authenticationProvider(userRepository: UserRepository): AuthenticationProvider =
-    DaoAuthenticationProvider().also {
-      it.setUserDetailsService(userDetailsService(userRepository))
-      it.setPasswordEncoder(encoder())
-    }
+    @Bean
+    fun authenticationProvider(userRepository: UserRepository): AuthenticationProvider =
+        DaoAuthenticationProvider().also {
+            it.setUserDetailsService(userDetailsService(userRepository))
+            it.setPasswordEncoder(encoder())
+        }
 
-  @Bean
-  fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager =
-    config.authenticationManager
+    @Bean
+    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager =
+        config.authenticationManager
 }

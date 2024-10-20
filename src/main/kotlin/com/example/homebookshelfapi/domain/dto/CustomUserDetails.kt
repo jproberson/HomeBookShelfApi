@@ -7,20 +7,20 @@ import org.springframework.security.core.userdetails.UserDetails
 
 class CustomUserDetails(private val userEntity: UserEntity) : UserDetails {
 
-  override fun getAuthorities(): Collection<GrantedAuthority> =
-    listOf(SimpleGrantedAuthority("ROLE_${userEntity.role}"))
+    override fun getAuthorities(): Collection<GrantedAuthority> =
+        listOf(SimpleGrantedAuthority("ROLE_${userEntity.role}"))
 
-  override fun getPassword(): String = userEntity.password
+    override fun getPassword(): String = userEntity.password
 
-  override fun getUsername(): String = userEntity.username
+    override fun getUsername(): String = userEntity.username
 
-  fun getUserEntity(): UserEntity = userEntity
+    fun getUserEntity(): UserEntity = userEntity
 
-  override fun isAccountNonExpired(): Boolean = true
+    override fun isAccountNonExpired(): Boolean = true
 
-  override fun isAccountNonLocked(): Boolean = true
+    override fun isAccountNonLocked(): Boolean = true
 
-  override fun isCredentialsNonExpired(): Boolean = true
+    override fun isCredentialsNonExpired(): Boolean = true
 
-  override fun isEnabled(): Boolean = true
+    override fun isEnabled(): Boolean = true
 }

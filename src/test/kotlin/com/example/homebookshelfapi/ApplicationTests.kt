@@ -9,5 +9,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @SpringBootTest
 class ApplicationTests : BaseIntegrationTest() {
 
-  @Test fun contextLoads() {}
+    @Test
+    fun contextLoads() {
+    }
 }

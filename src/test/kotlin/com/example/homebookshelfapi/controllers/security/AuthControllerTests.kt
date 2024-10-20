@@ -1,7 +1,7 @@
 package com.example.homebookshelfapi.controllers.security
 
-import com.example.homebookshelfapi.setup.BaseIntegrationTest
 import com.example.homebookshelfapi.repositories.security.RefreshTokenRepository
+import com.example.homebookshelfapi.setup.BaseIntegrationTest
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc

@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface RefreshTokenRepository : JpaRepository<RefreshTokenEntity, Long> {
-  fun findByToken(token: String): RefreshTokenEntity?
+    fun findByToken(token: String): RefreshTokenEntity?
 
-  @Query(
-    "SELECT t FROM RefreshTokenEntity t WHERE t.user = :user AND t.revoked = false AND t.expirationDate > CURRENT_TIMESTAMP"
-  )
-  fun findActiveTokensByUser(user: UserEntity): List<RefreshTokenEntity>
+    @Query(
+        "SELECT t FROM RefreshTokenEntity t WHERE t.user = :user AND t.revoked = false AND t.expirationDate > CURRENT_TIMESTAMP"
+    )
+    fun findActiveTokensByUser(user: UserEntity): List<RefreshTokenEntity>
 }

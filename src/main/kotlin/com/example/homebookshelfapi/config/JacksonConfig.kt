@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class JacksonConfig {
-  @Bean
-  fun objectMapper(): ObjectMapper {
-    return ObjectMapper().apply {
-      registerModule(JavaTimeModule())
-      registerModule(KotlinModule.Builder().build())
-      disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    @Bean
+    fun objectMapper(): ObjectMapper {
+        return ObjectMapper().apply {
+            registerModule(JavaTimeModule())
+            registerModule(KotlinModule.Builder().build())
+            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        }
     }
-  }
 }

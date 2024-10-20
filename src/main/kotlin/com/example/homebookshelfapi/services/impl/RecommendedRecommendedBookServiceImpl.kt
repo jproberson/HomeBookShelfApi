@@ -7,8 +7,8 @@ import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.exceptions.UserNotFoundException
 import com.example.homebookshelfapi.external.gpt.GptService
 import com.example.homebookshelfapi.repositories.RecommendedBooksRepository
-import com.example.homebookshelfapi.services.RecommendedBookService
 import com.example.homebookshelfapi.services.BookService
+import com.example.homebookshelfapi.services.RecommendedBookService
 import com.example.homebookshelfapi.services.UserBooksService
 import com.example.homebookshelfapi.services.UsersService
 import com.example.homebookshelfapi.utils.logger

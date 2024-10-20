@@ -3,9 +3,7 @@ package com.example.homebookshelfapi.external.google
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.external.ApiEndpoints
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.time.LocalDate
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import generateBookEntity
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +13,9 @@ import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.web.client.RestTemplate
-import generateBookEntity
+import java.time.LocalDate
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @ActiveProfiles("test")
 @RestClientTest(MockGoogleApiServiceImpl::class)

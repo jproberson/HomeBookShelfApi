@@ -11,7 +11,7 @@ Primary purpose is learning Kotlin and Spring Boot.
 ## How to run
 
 1. Clone the repository
-2. Run the db: `docker-compose up -d` 
+2. Run the db: `docker-compose up -d`
 3. Run `./gradlew bootRun` in the root directory
 4. A temporary simple UI is available to add/remove/view books at http://localhost:8080
 
