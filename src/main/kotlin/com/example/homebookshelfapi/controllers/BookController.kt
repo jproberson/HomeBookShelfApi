@@ -4,7 +4,7 @@ import com.example.homebookshelfapi.domain.dto.BookDto
 import com.example.homebookshelfapi.domain.dto.RecommendationResponse
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.exceptions.UserNotFoundException
-import com.example.homebookshelfapi.services.BookRecommendationService
+import com.example.homebookshelfapi.services.RecommendedBookService
 import com.example.homebookshelfapi.services.BookService
 import com.example.homebookshelfapi.toBookDto
 import com.example.homebookshelfapi.toBookEntity
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/v1/api/books")
 class BookController(
     private val bookService: BookService,
-    private val bookRecommendationService: BookRecommendationService,
+    private val recommendedBookService: RecommendedBookService,
 ) {
 
     @GetMapping
@@ -71,7 +71,7 @@ class BookController(
     ): ResponseEntity<BookDto> {
         val username = authentication.name
         val newBook = bookService.addBookToUserByIsbn(isbn, username)
-        bookRecommendationService.removeRecommendedBookForUser(username, newBook)
+        recommendedBookService.removeRecommendedBookForUser(username, newBook)
         return ResponseEntity.status(HttpStatus.CREATED).body(newBook.toBookDto())
     }
 
@@ -95,7 +95,7 @@ class BookController(
         @PathVariable username: String,
         @RequestParam(required = false, defaultValue = "false") more: Boolean
     ): ResponseEntity<RecommendationResponse> {
-        val recommendations = bookRecommendationService.getRecommendationsForUser(username, more).body
+        val recommendations = recommendedBookService.getRecommendationsForUser(username, more)
 
         return ResponseEntity.ok(recommendations)
     }

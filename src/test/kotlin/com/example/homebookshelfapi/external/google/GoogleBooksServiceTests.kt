@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate
 import generateBookEntity
 
 @ActiveProfiles("test")
-@RestClientTest(MockGoogleApiService::class)
+@RestClientTest(MockGoogleApiServiceImpl::class)
 class GoogleApiServiceTest {
 
     @Autowired
@@ -35,7 +35,7 @@ class GoogleApiServiceTest {
         mockServer = MockRestServiceServer.createServer(restTemplate)
         objectMapper = ObjectMapper()
 
-        (googleApiService as MockGoogleApiService).mockedBook = BookEntity(
+        (googleApiService as MockGoogleApiServiceImpl).mockedBook = BookEntity(
             isbn = "1234567890",
             title = "Mocked Book Title",
             authors = "Mocked Author",

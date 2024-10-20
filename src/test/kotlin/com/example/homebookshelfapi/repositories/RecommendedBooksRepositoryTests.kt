@@ -11,11 +11,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import generateRecommendedBooksEntity
 
 @DataJpaTest
-class BookRecommendationRepositoryTest {
+class RecommendedBooksRepositoryTest {
 
   @Autowired lateinit var userRepository: UserRepository
 
-  @Autowired lateinit var bookRecommendationRepository: BookRecommendationRepository
+  @Autowired lateinit var recommendedBooksRepository: RecommendedBooksRepository
 
   @Autowired lateinit var bookRepository: BookRepository
 
@@ -26,19 +26,19 @@ class BookRecommendationRepositoryTest {
     val recommendedBook = generateRecommendedBooksEntity()
     user = userRepository.save(recommendedBook.user)
     val savedBook = bookRepository.save(recommendedBook.book)
-    bookRecommendationRepository.save(generateRecommendedBooksEntity(book = savedBook, user = user))
+    recommendedBooksRepository.save(generateRecommendedBooksEntity(book = savedBook, user = user))
   }
 
   @AfterEach
   fun tearDown() {
-    bookRecommendationRepository.deleteAll()
+    recommendedBooksRepository.deleteAll()
     bookRepository.deleteAll()
     userRepository.deleteAll()
   }
 
   @Test
   fun `findByUserId returns recommendations for given user`() {
-    val recommendations = bookRecommendationRepository.findByUser(user)
+    val recommendations = recommendedBooksRepository.findByUser(user)
     assertEquals(1, recommendations.size)
     assertEquals(user.id, recommendations.first().user.id)
   }
@@ -46,16 +46,16 @@ class BookRecommendationRepositoryTest {
   @Test
   fun `findByUserId returns empty when no recommendations`() {
     val newUser = userRepository.save(UserEntity(username = "New User", password = "password"))
-    val recommendations = bookRecommendationRepository.findByUser(newUser)
+    val recommendations = recommendedBooksRepository.findByUser(newUser)
     assertTrue(recommendations.isEmpty())
   }
 
   @Test
   fun `multiple recommendations for the same user`() {
     val anotherBook = bookRepository.save(generateRecommendedBooksEntity().book)
-    bookRecommendationRepository.save(generateRecommendedBooksEntity(book = anotherBook, user = user))
+    recommendedBooksRepository.save(generateRecommendedBooksEntity(book = anotherBook, user = user))
 
-    val recommendations = bookRecommendationRepository.findByUser(user)
+    val recommendations = recommendedBooksRepository.findByUser(user)
     assertEquals(2, recommendations.size)
   }
 }

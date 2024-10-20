@@ -3,6 +3,7 @@ package com.example.homebookshelfapi.setup
 import com.example.homebookshelfapi.domain.entities.Role
 import com.example.homebookshelfapi.domain.entities.UserEntity
 import com.example.homebookshelfapi.repositories.BookRepository
+import com.example.homebookshelfapi.repositories.RecommendedBooksRepository
 import com.example.homebookshelfapi.repositories.UserBooksRepository
 import com.example.homebookshelfapi.repositories.UserRepository
 import org.junit.jupiter.api.AfterEach
@@ -49,11 +50,14 @@ abstract class BaseIntegrationTest {
     private lateinit var userBooksRepository: UserBooksRepository
 
     @Autowired
+    private lateinit var recommendedBooksRepository: RecommendedBooksRepository
+
+    @Autowired
     private lateinit var passwordEncoder: PasswordEncoder
 
     companion object {
         private val postgresContainer: PostgreSQLContainer<*> =
-            PostgreSQLContainer(DockerImageName.parse("postgres:16-alpine"))
+            PostgreSQLContainer(DockerImageName.parse("postgres:latest"))
                 .apply {
                     withDatabaseName("testdb")
                     withUsername("postgres")
@@ -112,6 +116,7 @@ abstract class BaseIntegrationTest {
 
     private fun clearDB() {
         userBooksRepository.deleteAll()
+        recommendedBooksRepository.deleteAll()
         bookRepository.deleteAll()
         userRepository.deleteAll()
     }

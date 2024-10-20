@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: ${ENV}
   application:
     name: HomeBookShelfApi
   datasource:
@@ -14,8 +14,8 @@ spring:
     password: password
     locations: classpath:db/migration
     url: jdbc:postgresql://localhost:5433/postgres
-#  profiles:
-#    active: test
+  #  profiles:
+  #    active: test
   config:
     import: optional:classpath:.env
 

@@ -1,15 +1,14 @@
 package com.example.homebookshelfapi.services.impl
 
 import com.example.homebookshelfapi.domain.entities.BookEntity
-import com.example.homebookshelfapi.exceptions.UserNotFoundException
 import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.repositories.BookRepository
 import com.example.homebookshelfapi.services.BookService
 import com.example.homebookshelfapi.services.UserBooksService
 import com.example.homebookshelfapi.utils.logger
-import java.util.*
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class BookServiceImpl(

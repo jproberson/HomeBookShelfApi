@@ -2,7 +2,8 @@ package com.example.homebookshelfapi.controllers
 
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.external.google.GoogleApiService
-import com.example.homebookshelfapi.external.google.MockGoogleApiService
+import com.example.homebookshelfapi.external.google.MockGoogleApiServiceImpl
+import com.example.homebookshelfapi.external.gpt.GptService
 import com.example.homebookshelfapi.setup.BaseIntegrationTest
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -27,6 +28,9 @@ private const val BOOKS_BASE_URL = "/v1/api/books"
 class BookControllerIntegrationTest : BaseIntegrationTest() {
     @Autowired
     private lateinit var googleApiService: GoogleApiService
+
+    @Autowired
+    private lateinit var gptService: GptService
 
     var username = "testuser"
 
@@ -138,7 +142,7 @@ class BookControllerIntegrationTest : BaseIntegrationTest() {
     @WithMockUser(username = "testuser", roles = ["USER"])
     fun `should add a book by isbn to overall books and user books`() {
         val newBook = generateBookEntity()
-        (googleApiService as MockGoogleApiService).mockedBook = newBook
+        (googleApiService as MockGoogleApiServiceImpl).mockedBook = newBook
 
         mockMvc
             .perform(
@@ -164,6 +168,8 @@ class BookControllerIntegrationTest : BaseIntegrationTest() {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.length()").value(1))
             .andExpect(jsonPath("$[0].isbn").value(newBook.isbn))
+
+        (googleApiService as MockGoogleApiServiceImpl).mockedBook = null //reset mocked book for other tests
     }
 
     @Test
@@ -246,13 +252,39 @@ class BookControllerIntegrationTest : BaseIntegrationTest() {
             .andExpect(status().isNotFound)
     }
 
-//    @Test
-//    @WithMockUser(username = "testuser", roles = ["USER"])
-//    fun `should get recommended books`() {
-//        mockMvc
-//            .perform(get("BOOKS_BASE_URL/recommended").with(csrf()))
-//            .andExpect(status().isOk)
-//            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-//            .andExpect(jsonPath("$.length()").value(0))
-//    }
+    @Test
+    @WithMockUser(username = "testuser", roles = ["USER"])
+    fun `getRecommendations should get recommended books`() {
+        // get all books
+        val result = mockMvc
+            .perform(get(BOOKS_BASE_URL).with(csrf()))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.length()").value(3))
+            .andReturn()
+
+        val booksJson = result.response.contentAsString
+        val allBooks: List<BookEntity> =
+            ObjectMapper().readValue(booksJson, object : TypeReference<List<BookEntity>>() {})
+
+        // add books to user so > 3 check can be true
+        for (book in allBooks) {
+            mockMvc
+                .perform(
+                    post("$BOOKS_BASE_URL/isbn/${book.isbn}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf())
+                )
+                .andExpect(status().isCreated)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.title").value(book.title))
+        }
+
+        // get recommendations
+        mockMvc.perform(get("$BOOKS_BASE_URL/recommendations/testuser").with(csrf()))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.books").isArray)
+            .andExpect(jsonPath("$.books").isNotEmpty)
+    }
 }

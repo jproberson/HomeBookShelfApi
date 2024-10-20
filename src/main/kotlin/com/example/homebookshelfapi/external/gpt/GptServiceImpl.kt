@@ -2,9 +2,11 @@ package com.example.homebookshelfapi.external.gpt
 
 import com.example.homebookshelfapi.exceptions.GptApiException
 import com.example.homebookshelfapi.utils.logger
+import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
+@Profile("prod")
 @Service
 class GptServiceImpl(
   private val gptApiClient: GptApiClient,

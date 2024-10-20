@@ -7,7 +7,7 @@ import generateBookEntity
 
 @Profile("test", "integration")
 @Service
-class MockGoogleApiService : GoogleApiService {
+class MockGoogleApiServiceImpl : GoogleApiService {
     var mockedBook: BookEntity? = null
 
     override fun fetchBookInfoByISBN(isbn: String): BookEntity? {

@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface BookRecommendationRepository : JpaRepository<RecommendedBooksEntity, UUID> {
+interface RecommendedBooksRepository : JpaRepository<RecommendedBooksEntity, UUID> {
   fun findByUser(user: UserEntity): List<RecommendedBooksEntity>
 }
