@@ -1,0 +1,84 @@
+@username = admin
+@password = password
+@book1 = 0765365278
+@book2 = 9780544003415
+@book3 = 0062225677
+
+### AUTH REQUESTS
+### POST AUTH
+POST http://localhost:8080/v1/api/auth
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+    const {refreshToken, accessToken} = response.body;
+    client.global.set("accessToken", accessToken);
+    client.global.set("refreshToken", refreshToken);
+%}
+
+### POST REFRESH
+POST http://localhost:8080/v1/api/auth/refresh
+Content-Type: application/json
+
+{
+  "token": "{{refreshToken}}"
+}
+
+> {%
+    const {token} = response.body;
+    client.global.set("accessToken", token);
+%}
+
+### BOOK REQUESTS
+### GET ALL BOOKS with auth token
+GET http://localhost:8080/v1/api/books
+Authorization: Bearer {{accessToken}}
+
+### GET ALL BOOKS BY USER
+GET http://localhost:8080/v1/api/books/user/{{username}}
+Authorization: Bearer {{accessToken}}
+
+### ADD A BOOK BY ISBN 1
+POST http://localhost:8080/v1/api/books/isbn/{{book1}}
+Authorization: Bearer {{accessToken}}
+
+### ADD A BOOK BY ISBN 2
+POST http://localhost:8080/v1/api/books/isbn/{{book2}}
+Authorization: Bearer {{accessToken}}
+
+### ADD A BOOK BY ISBN 3
+POST http://localhost:8080/v1/api/books/isbn/{{book3}}
+Authorization: Bearer {{accessToken}}
+
+### GET A BOOK BY ISBN:
+GET http://localhost:8080/v1/api/books/isbn/{{book2}}
+Authorization: Bearer {{accessToken}}
+
+### GET RECOMMENDATIONS
+GET http://localhost:8080/v1/api/books/recommendations/{{username}}
+Authorization: Bearer {{accessToken}}
+
+### USER REQUESTS
+### GET ALL USERS
+GET http://localhost:8080/v1/api/user
+Authorization: Bearer {{accessToken}}
+
+### GET USER
+GET http://localhost:8080/v1/api/user/user1
+Authorization: Bearer {{accessToken}}
+
+### ADD USER
+POST http://localhost:8080/v1/api/user
+Authorization: Bearer {{accessToken}}
+
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "passwrd"
+}
+

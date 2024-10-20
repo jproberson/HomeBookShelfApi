@@ -151,7 +151,17 @@
     <div class="main-content">
         <h1>My Book Library</h1>
 
-        <label for="isbn">Enter ISBN:</label>
+        <!-- Sign-up and Login -->
+        <h2>Sign Up / Login</h2>
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="Username">
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Password">
+        <button id="signupBtn">Sign Up</button>
+        <button id="loginBtn">Login</button>
+
+        <!-- Book section -->
+        <h2>Enter ISBN:</h2>
         <input type="text" id="isbn" placeholder="ISBN">
         <button id="addBookBtn">Add Book</button>
 
@@ -169,7 +179,77 @@
 
 <script>
     const apiBaseUrl = 'http://localhost:8080/v1/api/books';
-    const userId = "00000000-0000-0000-0000-000000000001";
+    let username = localStorage.getItem('username');
+
+    document.getElementById('signupBtn').addEventListener('click', async () => {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        await signUp(username, password);
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        await login(username, password);
+    });
+
+    async function signUp(username, password) {
+        const response = await fetch('http://localhost:8080/v1/api/user', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, password})
+        });
+
+        if (response.ok) {
+            alert('User created successfully');
+        } else {
+            alert('Sign-up failed');
+        }
+    }
+
+    async function login(username, password) {
+        const response = await fetch('http://localhost:8080/v1/api/auth', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, password})
+        });
+
+        if (response.ok) {
+            const {accessToken, refreshToken} = await response.json();
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('username', username);
+        } else {
+            alert('Login failed');
+        }
+    }
+
+    async function refreshAccessToken() {
+        const refreshToken = localStorage.getItem('refreshToken');
+        const response = await fetch('http://localhost:8080/v1/api/auth/refresh', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: refreshToken}),
+        });
+        if (response.ok) {
+            const {token} = await response.json();
+            localStorage.setItem('accessToken', token);
+        } else {
+            alert('Session expired. Please log in again.');
+        }
+    }
+
+    async function fetchWithRefresh(url, options = {}) {
+        let response = await fetch(url, options);
+        if (response.status === 401) {
+            await refreshAccessToken();
+            const token = localStorage.getItem('accessToken');
+            options.headers['Authorization'] = `Bearer ${token}`;
+            response = await fetch(url, options);
+        }
+        return response;
+    }
+
 
     document.getElementById('addBookBtn').addEventListener('click', async () => {
         const isbn = document.getElementById('isbn').value;
@@ -179,9 +259,10 @@
     });
 
     async function addBook(isbn) {
-        const response = await fetch(`${apiBaseUrl}/isbn/${isbn}`, {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetchWithRefresh(`${apiBaseUrl}/isbn/${isbn}`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({isbn})
         });
         if (response.ok) {
@@ -193,7 +274,11 @@
     }
 
     async function loadBooks() {
-        const response = await fetch(`${apiBaseUrl}/user/${userId}`);
+        const token = localStorage.getItem('accessToken');
+        const username = document.getElementById('username').value;
+        const response = await fetchWithRefresh(`${apiBaseUrl}/user/${username}`, {
+            headers: {'Authorization': `Bearer ${token}`}
+        });
         const books = await response.json();
         const bookList = document.getElementById('book-list');
         bookList.innerHTML = '';
@@ -213,14 +298,30 @@
         });
     }
 
+    async function removeBook(bookId) {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetchWithRefresh(`${apiBaseUrl}/${bookId}`, {
+            method: 'DELETE',
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+        if (response.ok) {
+            loadBooks();
+        } else {
+            alert('Failed to remove book');
+        }
+    }
+
     async function fetchRecommendations(fetchMore = false) {
+        const token = localStorage.getItem('accessToken');
         const moreParam = fetchMore ? '?more=true' : '';
-        const response = await fetch(`${apiBaseUrl}/recommendations/${userId}${moreParam}`);
-        const { books, gptAvailable } = await response.json();
+        const response = await fetch(`${apiBaseUrl}/recommendations/${username}${moreParam}`, {
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+        const {books, recommendationsAvailable} = await response.json();
 
         const statusMessage = document.getElementById('gpt-status-message');
 
-        if (!gptAvailable) {
+        if (!recommendationsAvailable) {
             statusMessage.textContent = 'Recommendations service is currently unavailable.';
             document.getElementById('getRecommendationsBtn').disabled = true;
         } else {
@@ -252,20 +353,18 @@
         await fetchRecommendations(true);
     });
 
-
-    async function removeBook(bookId) {
-        const response = await fetch(`${apiBaseUrl}/${bookId}`, {method: 'DELETE'});
-        if (response.ok) {
-            loadBooks();
+    window.onload = async () => {
+        if (localStorage.getItem('accessToken')) {
+            document.querySelector('.main-content').style.display = 'block';
+            document.querySelector('.sidebar').style.display = 'block';
+            await loadBooks();
+            await fetchRecommendations();
         } else {
-            alert('Failed to remove book');
+            document.querySelector('.main-content').style.display = 'none';
+            document.querySelector('.sidebar').style.display = 'none';
         }
     }
 
-    window.onload = async () => {
-        await loadBooks();
-        await fetchRecommendations();
-    };
 </script>
 
 </body>

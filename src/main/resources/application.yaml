@@ -1,0 +1,28 @@
+spring:
+  profiles:
+    active: prod
+  application:
+    name: HomeBookShelfApi
+  datasource:
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/postgres
+  flyway:
+    enabled: true
+    user: postgres
+    password: password
+    locations: classpath:db/migration
+    url: jdbc:postgresql://localhost:5433/postgres
+#  profiles:
+#    active: test
+  config:
+    import: optional:classpath:.env
+
+gpt:
+  api-token: ${GPT_API_TOKEN:default}
+
+jwt:
+  key: ${JWT_KEY}
+  access-token-expiration: 3600000
+  refresh-token-expiration: 86400000

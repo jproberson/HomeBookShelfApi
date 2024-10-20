@@ -2,13 +2,15 @@ package com.example.homebookshelfapi.services.impl
 
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.domain.entities.UserBooksEntity
+import com.example.homebookshelfapi.exceptions.UserNotFoundException
 import com.example.homebookshelfapi.repositories.BookRepository
 import com.example.homebookshelfapi.repositories.UserBooksRepository
 import com.example.homebookshelfapi.repositories.UserRepository
 import com.example.homebookshelfapi.services.UserBooksService
 import jakarta.transaction.Transactional
-import org.springframework.stereotype.Service
 import java.util.*
+import org.springframework.stereotype.Service
+import java.awt.print.Book
 
 @Service
 class UserBooksServiceImpl(
@@ -17,18 +19,24 @@ class UserBooksServiceImpl(
     private val userRepository: UserRepository
 ) : UserBooksService {
 
-    override fun getUserBooks(userId: UUID): List<BookEntity> {
-        return userBookRepository.findBooksByUserId(userId)
+    override fun getUserBooks(username: String): List<BookEntity> {
+        val user =
+            userRepository.findByUsername(username)
+                ?: throw UserNotFoundException("User with username $username not found.")
+
+        return userBookRepository.findBooksByUserId(user.id)
     }
 
-    override fun addBookToUser(userId: UUID, bookId: UUID) {
-        if (!userBookRepository.existsByUserIdAndBookId(userId, bookId)) {
-            val user = userRepository.findById(userId).orElseThrow {
-                IllegalArgumentException("User with ID $userId not found.")
-            }
-            val book = bookRepository.findById(bookId).orElseThrow {
-                IllegalArgumentException("Book with ID $bookId not found.")
-            }
+    override fun addBookToUser(username: String, bookId: UUID) {
+        val user =
+            userRepository.findByUsername(username)
+                ?: throw IllegalArgumentException("User with username $username not found.")
+
+        if (!userBookRepository.existsByUserAndBookId(user, bookId)) {
+            val book =
+                bookRepository.findById(bookId).orElseThrow {
+                    IllegalArgumentException("Book with ID $bookId not found.")
+                }
 
             val userBook = UserBooksEntity(user = user, book = book)
             userBookRepository.save(userBook)
@@ -36,13 +44,16 @@ class UserBooksServiceImpl(
     }
 
     @Transactional
-    override fun deleteBookForUser(userId: UUID, bookId: UUID): Boolean {
-        return if (userBookRepository.existsByUserIdAndBookId(userId, bookId)) {
-            userBookRepository.deleteByUserIdAndBookId(userId, bookId)
+    override fun deleteBookForUser(username: String, bookId: UUID): Boolean {
+        val user =
+            userRepository.findByUsername(username)
+                ?: throw IllegalArgumentException("User with username $username not found.")
+
+        return if (userBookRepository.existsByUserAndBookId(user, bookId)) {
+            userBookRepository.deleteByUserAndBookId(user, bookId)
             true
         } else {
             false
         }
     }
-
 }

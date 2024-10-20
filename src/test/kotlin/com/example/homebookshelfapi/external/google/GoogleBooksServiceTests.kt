@@ -3,6 +3,9 @@ package com.example.homebookshelfapi.external.google
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.external.ApiEndpoints
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.time.LocalDate
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,13 +15,10 @@ import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.web.client.RestTemplate
-import testBookEntity
-import java.time.LocalDate
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import generateBookEntity
 
 @ActiveProfiles("test")
-@RestClientTest(GoogleApiService::class)
+@RestClientTest(MockGoogleApiService::class)
 class GoogleApiServiceTest {
 
     @Autowired
@@ -34,24 +34,35 @@ class GoogleApiServiceTest {
     fun setup() {
         mockServer = MockRestServiceServer.createServer(restTemplate)
         objectMapper = ObjectMapper()
+
+        (googleApiService as MockGoogleApiService).mockedBook = BookEntity(
+            isbn = "1234567890",
+            title = "Mocked Book Title",
+            authors = "Mocked Author",
+            description = "This is a mock book for testing purposes.",
+            categories = "Fiction, Testing",
+            publishedDate = LocalDate.now(),
+            pageCount = 123,
+            thumbnail = "http://example.com/mock-thumbnail.jpg"
+        )
     }
 
     @Test
     fun `fetchBookInfoByISBN should return Book for valid ISBN`() {
-        val mockBookEntity = testBookEntity(isbn = "1234567890")
+        val mockBookEntity = generateBookEntity(isbn = "1234567890")
 
         val mockApiResponse = objectMapper.writeValueAsString(
-            mapOf(
-                "items" to listOf(
-                    mapOf(
-                        "volumeInfo" to mapOf(
-                            "title" to "Mocked Book Title",
-                            "authors" to "Mocked Author",
-                            "description" to "This is a mock book for testing purposes.",
-                            "categories" to listOf("Fiction", "Testing"),
-                            "publishedDate" to LocalDate.now().toString(),
-                            "pageCount" to 123,
-                            "imageLinks" to "http://example.com/mock-thumbnail.jpg"
+            GoogleBooksResponse(
+                items = listOf(
+                    GoogleBookItem(
+                        volumeInfo = VolumeInfo(
+                            title = "Mocked Book Title",
+                            authors = listOf("Mocked Author"),
+                            description = "This is a mock book for testing purposes.",
+                            categories = listOf("Fiction", "Testing"),
+                            publishedDate = LocalDate.now().toString(),
+                            pageCount = 123,
+                            imageLinks = ImageLinks(thumbnail = "http://example.com/mock-thumbnail.jpg")
                         )
                     )
                 )
@@ -59,7 +70,8 @@ class GoogleApiServiceTest {
         )
 
         val expectedUrl = "${ApiEndpoints.GOOGLE_BOOKS_API}${mockBookEntity.isbn}"
-        mockServer.expect(requestTo(expectedUrl))
+        mockServer
+            .expect(requestTo(expectedUrl))
             .andRespond(withSuccess(mockApiResponse, org.springframework.http.MediaType.APPLICATION_JSON))
 
         val bookEntity: BookEntity? = googleApiService.fetchBookInfoByISBN("1234567890")
