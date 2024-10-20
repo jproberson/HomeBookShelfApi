@@ -15,7 +15,7 @@ import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.web.client.RestTemplate
-import testBookEntity
+import generateBookEntity
 
 @ActiveProfiles("test")
 @RestClientTest(GoogleApiService::class)
@@ -36,7 +36,7 @@ class GoogleApiServiceTest {
 
   @Test
   fun `fetchBookInfoByISBN should return Book for valid ISBN`() {
-    val mockBookEntity = testBookEntity(isbn = "1234567890")
+    val mockBookEntity = generateBookEntity(isbn = "1234567890")
 
     val mockApiResponse =
       objectMapper.writeValueAsString(

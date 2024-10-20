@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import testBookEntity
+import generateBookEntity
 
 class UserEntityBooksServiceTest {
 
@@ -37,7 +37,7 @@ class UserEntityBooksServiceTest {
   fun setup() {
     MockKAnnotations.init(this)
     user = UserEntity(id = UUID.randomUUID(), username = "Test User", password = "password")
-    book = testBookEntity()
+    book = generateBookEntity()
     userBook = UserBooksEntity(user = user, book = book)
   }
 

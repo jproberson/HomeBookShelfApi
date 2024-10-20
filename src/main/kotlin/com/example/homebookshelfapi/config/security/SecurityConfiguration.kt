@@ -14,32 +14,34 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 class SecurityConfiguration(private val authenticationProvider: AuthenticationProvider) {
 
-  @Bean
-  fun securityFilterChain(
-    http: HttpSecurity,
-    jwtAuthenticationFilter: JwtAuthenticationFilter
-  ): DefaultSecurityFilterChain {
-    http
-      .csrf { it.disable() }
-      .authorizeHttpRequests {
-        it
-          .requestMatchers("/index.html", "/static/**", "/", "/static/**")
-          .permitAll()
-          .requestMatchers("/v1/api/auth", "/v1/api/auth/refresh", "/error")
-          .permitAll()
-          .requestMatchers(HttpMethod.POST, "/v1/api/user")
-          .permitAll()
-          .requestMatchers("/v1/api/user**")
-          .hasRole("ADMIN")
-          .requestMatchers("/v1/api/books")
-          .hasAnyRole("USER", "ADMIN")
-          .anyRequest()
-          .authenticated()
-      }
-      .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-      .authenticationProvider(authenticationProvider)
-      .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+    @Bean
+    fun securityFilterChain(
+        http: HttpSecurity,
+        jwtAuthenticationFilter: JwtAuthenticationFilter
+    ): DefaultSecurityFilterChain {
+        http
+            .csrf { it.disable() }
+            .authorizeHttpRequests {
+                it
+                    .requestMatchers("/index.html", "/static/**", "/", "/static/**")
+                    .permitAll()
+                    .requestMatchers("/v1/api/auth", "/v1/api/auth/refresh", "/error")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/v1/api/user")
+                    .permitAll()
+                    .requestMatchers("/v1/api/user**")
+                    .hasRole("ADMIN")
+                    .requestMatchers("/v1/api/user/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers("/v1/api/books")
+                    .hasAnyRole("USER", "ADMIN")
+                    .anyRequest()
+                    .authenticated()
+            }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authenticationProvider(authenticationProvider)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-    return http.build()
-  }
+        return http.build()
+    }
 }

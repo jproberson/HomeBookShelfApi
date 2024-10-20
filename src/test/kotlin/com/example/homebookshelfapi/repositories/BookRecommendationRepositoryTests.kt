@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import testRecommendedBooksEntity
+import generateRecommendedBooksEntity
 
 @DataJpaTest
 class BookRecommendationRepositoryTest {
@@ -23,10 +23,10 @@ class BookRecommendationRepositoryTest {
 
   @BeforeEach
   fun setup() {
-    val recommendedBook = testRecommendedBooksEntity()
+    val recommendedBook = generateRecommendedBooksEntity()
     user = userRepository.save(recommendedBook.user)
     val savedBook = bookRepository.save(recommendedBook.book)
-    bookRecommendationRepository.save(testRecommendedBooksEntity(book = savedBook, user = user))
+    bookRecommendationRepository.save(generateRecommendedBooksEntity(book = savedBook, user = user))
   }
 
   @AfterEach
@@ -52,8 +52,8 @@ class BookRecommendationRepositoryTest {
 
   @Test
   fun `multiple recommendations for the same user`() {
-    val anotherBook = bookRepository.save(testRecommendedBooksEntity().book)
-    bookRecommendationRepository.save(testRecommendedBooksEntity(book = anotherBook, user = user))
+    val anotherBook = bookRepository.save(generateRecommendedBooksEntity().book)
+    bookRecommendationRepository.save(generateRecommendedBooksEntity(book = anotherBook, user = user))
 
     val recommendations = bookRecommendationRepository.findByUser(user)
     assertEquals(2, recommendations.size)

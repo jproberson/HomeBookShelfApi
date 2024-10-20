@@ -11,7 +11,7 @@ val commerceFaker = CommerceFaker()
 
 val DEFAULT_TEST_USER_ID: UUID = UUID.fromString("00000000-0000-0000-0000-000000000001")
 
-fun testUserEntity(
+fun generateUserEntity(
   id: UUID? = null,
   username: String = faker.name.name(),
   password: String = faker.crypto.md5(),
@@ -28,7 +28,7 @@ fun testUserEntity(
     createdAt = createdAt
   )
 
-fun testBookEntity(
+fun generateBookEntity(
   id: UUID? = null,
   isbn: String = commerceFaker.barcode.isbn(),
   title: String = booksFaker.book.title(),
@@ -51,17 +51,17 @@ fun testBookEntity(
     thumbnail = thumbnail
   )
 
-fun testUserBooksEntity(
+fun generateUserBooksEntity(
   id: UUID? = null,
-  user: UserEntity = testUserEntity(),
-  book: BookEntity = testBookEntity(),
+  user: UserEntity = generateUserEntity(),
+  book: BookEntity = generateBookEntity(),
   addedAt: Date = Date()
 ) = UserBooksEntity(id = id ?: UUID.randomUUID(), user = user, book = book, addedAt = addedAt)
 
-fun testRecommendedBooksEntity(
+fun generateRecommendedBooksEntity(
   id: UUID? = null,
-  user: UserEntity = testUserEntity(),
-  book: BookEntity = testBookEntity(),
+  user: UserEntity = generateUserEntity(),
+  book: BookEntity = generateBookEntity(),
   recommendedAt: Date = Date(),
   recommendationStrategy: String = "Default"
 ) =

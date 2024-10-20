@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.ResponseEntity
-import testBookEntity
-import testRecommendedBooksEntity
-import testUserEntity
+import generateBookEntity
+import generateRecommendedBooksEntity
+import generateUserEntity
 
 class BookRecommendationServiceTests {
   @MockK private lateinit var userBooksService: UserBooksService
@@ -36,8 +36,8 @@ class BookRecommendationServiceTests {
 
   @Test
   fun `getRecommendationsForUser returns a list of book recommendations for a user`() {
-    val user = testUserEntity()
-    val existingRecommendations = listOf(testRecommendedBooksEntity())
+    val user = generateUserEntity()
+    val existingRecommendations = listOf(generateRecommendedBooksEntity())
 
     every { userService.getByUsername(user.username) } returns user
     every { bookRecommendationRepository.findByUser(user) } returns existingRecommendations
@@ -52,7 +52,7 @@ class BookRecommendationServiceTests {
 
   @Test
   fun `getRecommendationsForUser returns a bad request if user not found`() {
-    val user = testUserEntity()
+    val user = generateUserEntity()
 
     every { userService.getByUsername(user.username) } returns null
     every { gptService.isAvailable() } returns true
@@ -65,7 +65,7 @@ class BookRecommendationServiceTests {
 
   @Test
   fun `getRecommendationsForUser returns a bad request if user has insufficient books`() {
-    val user = testUserEntity()
+    val user = generateUserEntity()
 
     every { gptService.isAvailable() } returns true
     every { userService.getByUsername(user.username) } returns user
@@ -79,8 +79,8 @@ class BookRecommendationServiceTests {
 
   @Test
   fun `removeRecommendedBookForUser removes a recommended book for a user`() {
-    val user = testUserEntity()
-    val recommendedBook = testRecommendedBooksEntity()
+    val user = generateUserEntity()
+    val recommendedBook = generateRecommendedBooksEntity()
 
     every { userService.getByUsername(user.username) } returns user
     every { bookRecommendationRepository.findByUser(user) } returns listOf(recommendedBook)
@@ -94,8 +94,8 @@ class BookRecommendationServiceTests {
 
   @Test
   fun `removeRecommendedBookForUser returns a not found status if book not found in recommendations`() {
-    val user = testUserEntity()
-    val recommendedBook = testRecommendedBooksEntity()
+    val user = generateUserEntity()
+    val recommendedBook = generateRecommendedBooksEntity()
 
     every { userService.getByUsername(user.username) } returns user
     every { bookRecommendationRepository.findByUser(user) } returns emptyList()
@@ -107,9 +107,9 @@ class BookRecommendationServiceTests {
 
   @Test
   fun `getRecommendationsForUser fetches and saves new recommendations if existing is empty`() {
-    val user = testUserEntity()
-    val userBooks = listOf(testBookEntity(), testBookEntity(), testBookEntity())
-    val newRecommendations = listOf(testBookEntity())
+    val user = generateUserEntity()
+    val userBooks = listOf(generateBookEntity(), generateBookEntity(), generateBookEntity())
+    val newRecommendations = listOf(generateBookEntity())
 
     every { userService.getByUsername(user.username) } returns user
     every { bookRecommendationRepository.findByUser(user) } returns emptyList()
@@ -117,7 +117,7 @@ class BookRecommendationServiceTests {
     every { gptService.getBookRecommendations(any()) } returns
       ResponseEntity.ok(listOf(newRecommendations[0].isbn))
     every { bookService.addBookByIsbn(any()) } returns newRecommendations[0]
-    every { bookRecommendationRepository.save(any()) } returns testRecommendedBooksEntity()
+    every { bookRecommendationRepository.save(any()) } returns generateRecommendedBooksEntity()
     every { gptService.isAvailable() } returns true
 
     val result =
@@ -128,18 +128,18 @@ class BookRecommendationServiceTests {
 
   @Test
   fun `getRecommendationsForUser fetches more recommendations when fetchMore is true`() {
-    val user = testUserEntity()
-    val existingRecommendations = listOf(testRecommendedBooksEntity())
-    val newRecommendations = listOf(testBookEntity(), testBookEntity())
+    val user = generateUserEntity()
+    val existingRecommendations = listOf(generateRecommendedBooksEntity())
+    val newRecommendations = listOf(generateBookEntity(), generateBookEntity())
 
     every { userService.getByUsername(user.username) } returns user
     every { bookRecommendationRepository.findByUser(user) } returns existingRecommendations
     every { userBooksService.getUserBooks(user.username) } returns
-      listOf(testBookEntity(), testBookEntity(), testBookEntity())
+      listOf(generateBookEntity(), generateBookEntity(), generateBookEntity())
     every { gptService.getBookRecommendations(any()) } returns
       ResponseEntity.ok(listOf(newRecommendations[0].isbn))
     every { bookService.addBookByIsbn(any()) } returns newRecommendations[0]
-    every { bookRecommendationRepository.save(any()) } returns testRecommendedBooksEntity()
+    every { bookRecommendationRepository.save(any()) } returns generateRecommendedBooksEntity()
     every { gptService.isAvailable() } returns true
 
     val result =
@@ -150,9 +150,9 @@ class BookRecommendationServiceTests {
 
   @Test
   fun `getRecommendationsForUser saves new recommendations when fetchMore is true`() {
-    val user = testUserEntity()
-    val userBooks = listOf(testBookEntity(), testBookEntity(), testBookEntity())
-    val newRecommendations = listOf(testBookEntity())
+    val user = generateUserEntity()
+    val userBooks = listOf(generateBookEntity(), generateBookEntity(), generateBookEntity())
+    val newRecommendations = listOf(generateBookEntity())
 
     every { userService.getByUsername(user.username) } returns user
     every { bookRecommendationRepository.findByUser(user) } returns emptyList()
@@ -160,7 +160,7 @@ class BookRecommendationServiceTests {
     every { gptService.getBookRecommendations(any()) } returns
       ResponseEntity.ok(listOf(newRecommendations[0].isbn))
     every { bookService.addBookByIsbn(newRecommendations[0].isbn) } returns newRecommendations[0]
-    every { bookRecommendationRepository.save(any()) } returns testRecommendedBooksEntity()
+    every { bookRecommendationRepository.save(any()) } returns generateRecommendedBooksEntity()
     every { gptService.isAvailable() } returns true
 
     val result =
@@ -172,8 +172,8 @@ class BookRecommendationServiceTests {
 
   @Test
   fun `getRecommendationsForUser does not fetch new recommendations when fetchMore is false and recommendations exist`() {
-    val user = testUserEntity()
-    val existingRecommendations = listOf(testRecommendedBooksEntity())
+    val user = generateUserEntity()
+    val existingRecommendations = listOf(generateRecommendedBooksEntity())
 
     every { userService.getByUsername(user.username) } returns user
     every { bookRecommendationRepository.findByUser(user) } returns existingRecommendations
