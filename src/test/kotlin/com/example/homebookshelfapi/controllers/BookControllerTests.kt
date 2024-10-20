@@ -3,8 +3,10 @@ package com.example.homebookshelfapi.controllers
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.external.google.GoogleApiService
 import com.example.homebookshelfapi.external.google.MockGoogleApiService
+import com.example.homebookshelfapi.setup.BaseIntegrationTest
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import generateBookEntity
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -15,9 +17,8 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import generateBookEntity
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 private const val BOOKS_BASE_URL = "/v1/api/books"
 

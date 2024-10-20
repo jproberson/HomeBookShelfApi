@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost/testdb
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost/testdb
+    locations: classpath:db/migration
+    user: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: none
+gpt:
+  api-token: dummy-token
+jwt:
+  key: ${JWT_KEY}
+  access-token-expiration: 3600000
+  refresh-token-expiration: 86400000
+testcontainers:
+  reuse:
+    enable: true
+logging:
+  level:
+    org:
+      flywaydb: DEBUG

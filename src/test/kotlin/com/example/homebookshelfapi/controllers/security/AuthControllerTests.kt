@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.controllers.security
 
-import com.example.homebookshelfapi.controllers.BaseIntegrationTest
+import com.example.homebookshelfapi.setup.BaseIntegrationTest
 import com.example.homebookshelfapi.repositories.security.RefreshTokenRepository
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,7 +50,7 @@ class AuthControllerTests : BaseIntegrationTest() {
 
     @Test
     @Transactional
-    @WithMockUser(username = "admin", roles = ["ADMIN"])
+    @WithMockUser(username = "testadmin", roles = ["ADMIN"])
     fun `authenticate should return a token for admin`() {
         mockMvc
             .perform(
@@ -59,7 +59,7 @@ class AuthControllerTests : BaseIntegrationTest() {
                     .content(
                         """
                     {
-                        "username": "admin",
+                        "username": "testadmin",
                         "password": "password" 
                      }
                     """.trimIndent()
@@ -124,7 +124,7 @@ class AuthControllerTests : BaseIntegrationTest() {
 
     @Test
     @Transactional
-    @WithMockUser(username = "admin", roles = ["ADMIN"])
+    @WithMockUser(username = "testadmin", roles = ["ADMIN"])
     fun `refreshAccessToken should return a token for admin`() {
         // Authenticate admin
         mockMvc
@@ -134,20 +134,20 @@ class AuthControllerTests : BaseIntegrationTest() {
                     .content(
                         """
                     {
-                        "username": "admin",
+                        "username": "testadmin",
                         "password": "password"
                      }
                     """.trimIndent()
                     )
                     .with(csrf())
-                    .with(user("admin").roles("ADMIN"))
+                    .with(user("testadmin").roles("ADMIN"))
             )
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.accessToken").isString)
             .andExpect(jsonPath("$.refreshToken").isString)
 
-        val user = userRepository.findByUsername("admin")
+        val user = userRepository.findByUsername("testadmin")
         val activeTokens = refreshTokenRepository.findActiveTokensByUser(user!!)
         val token = activeTokens.firstOrNull()?.token
 
@@ -164,7 +164,7 @@ class AuthControllerTests : BaseIntegrationTest() {
                         """.trimIndent()
                     )
                     .with(csrf())
-                    .with(user("admin").roles("ADMIN"))
+                    .with(user("testadmin").roles("ADMIN"))
             )
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))

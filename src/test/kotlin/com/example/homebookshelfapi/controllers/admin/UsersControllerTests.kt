@@ -1,6 +1,6 @@
 package com.example.homebookshelfapi.controllers.admin
 
-import com.example.homebookshelfapi.controllers.BaseIntegrationTest
+import com.example.homebookshelfapi.setup.BaseIntegrationTest
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -21,7 +21,7 @@ private const val USERS_BASE_URL = "/v1/api/user"
 class UsersApiIntegrationTest : BaseIntegrationTest() {
     @Test
     @Transactional
-    @WithMockUser(username = "admin", roles = ["ADMIN"])
+    @WithMockUser(username = "testadmin", roles = ["ADMIN"])
     fun `getAllUsers should return all users for admins`() {
         mockMvc
             .perform(get(USERS_BASE_URL).with(csrf()))
@@ -65,13 +65,13 @@ class UsersApiIntegrationTest : BaseIntegrationTest() {
 
     @Test
     @Transactional
-    @WithMockUser(username = "admin", roles = ["ADMIN"])
+    @WithMockUser(username = "testadmin", roles = ["ADMIN"])
     fun `getUserByUsername should return user for admins`() {
         mockMvc
-            .perform(get("$USERS_BASE_URL/admin").with(csrf()))
+            .perform(get("$USERS_BASE_URL/testadmin").with(csrf()))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.username").value("admin"))
+            .andExpect(jsonPath("$.username").value("testadmin"))
     }
 
     @Test
@@ -86,10 +86,10 @@ class UsersApiIntegrationTest : BaseIntegrationTest() {
 
     @Test
     @Transactional
-    @WithMockUser(username = "admin", roles = ["ADMIN"])
+    @WithMockUser(username = "testadmin", roles = ["ADMIN"])
     fun `deleteUser should return no content for admins`() {
         mockMvc
-            .perform(delete("$USERS_BASE_URL/admin").with(csrf()))
+            .perform(delete("$USERS_BASE_URL/testadmin").with(csrf()))
             .andExpect(status().isNoContent)
     }
 
@@ -104,7 +104,7 @@ class UsersApiIntegrationTest : BaseIntegrationTest() {
 
     @Test
     @Transactional
-    @WithMockUser(username = "admin", roles = ["ADMIN"])
+    @WithMockUser(username = "testadmin", roles = ["ADMIN"])
     fun `deleteUser should return not found for non-existing user`() {
         mockMvc
             .perform(get("$USERS_BASE_URL/nonExistingUser").with(csrf()))

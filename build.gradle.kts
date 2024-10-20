@@ -34,7 +34,7 @@ dependencies {
     runtimeOnly("org.flywaydb:flyway-database-postgresql:10.19.0")
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
     // Testing
-//    testImplementation("com.h2database:h2") //eventually replace with testcontainers
+    testImplementation("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
         exclude(module = "mockito-junit-jupiter")

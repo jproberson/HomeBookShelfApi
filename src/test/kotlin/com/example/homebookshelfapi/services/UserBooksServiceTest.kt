@@ -3,6 +3,7 @@ package com.example.homebookshelfapi.services
 import com.example.homebookshelfapi.domain.entities.BookEntity
 import com.example.homebookshelfapi.domain.entities.UserBooksEntity
 import com.example.homebookshelfapi.domain.entities.UserEntity
+import com.example.homebookshelfapi.exceptions.UserNotFoundException
 import com.example.homebookshelfapi.repositories.BookRepository
 import com.example.homebookshelfapi.repositories.UserBooksRepository
 import com.example.homebookshelfapi.repositories.UserRepository
@@ -67,7 +68,7 @@ class UserEntityBooksServiceTest {
     every { userRepository.findByUsername(user.username) } returns null
 
     val exception =
-      org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+      org.junit.jupiter.api.assertThrows<UserNotFoundException> {
         userBooksService.getUserBooks(user.username)
       }
 

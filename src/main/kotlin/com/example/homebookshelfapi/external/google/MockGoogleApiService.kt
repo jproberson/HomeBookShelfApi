@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import generateBookEntity
 
-@Profile("test")
+@Profile("test", "integration")
 @Service
 class MockGoogleApiService : GoogleApiService {
     var mockedBook: BookEntity? = null
